@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
 import { Flip } from "react-toastify/unstyled"
@@ -9,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,13 +24,34 @@ export default function Login() {
       const token = response.data.token
       localStorage.setItem("token", token)
 
-      toast.success("Login realizado com sucesso!")
-      navigate("/") // ou window.location.href = "/"
+      toast.success('Bem-vindo!', {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Flip,
+      });
+      navigate("/")
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error("Email ou senha inválidos.")
+      if (error.response && error.response.status === 403) {
+        console.log(error)
+        toast.error('Email ou Senha inválidos', {
+          position: "top-center",
+          autoClose: 500,
+          hideProgressBar: true,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Flip,
+        });
       } else {
-        // toast.error("Erro ao conectar com o servidor.")
+        console.log(error)
         toast.error('Erro ao conectar com o servidor.', {
           position: "top-center",
           autoClose: 500,
@@ -40,7 +62,7 @@ export default function Login() {
           progress: undefined,
           theme: "light",
           transition: Flip,
-          });
+        });
       }
     } finally {
       setLoading(false)
