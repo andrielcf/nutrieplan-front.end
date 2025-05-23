@@ -593,8 +593,6 @@ export default function Register() {
         parseInt(userData.profile.age)
       );
 
-      console.log(calorieRange);
-
       // Preparar os dados para a requisição
       const requestData = {
         size: 7,
@@ -731,14 +729,11 @@ export default function Register() {
     }));
 
     // Percorre cada receita recebida
-    recipesFromEdamam.hits.forEach((hit, index) => {
+    const meals = recipesFromEdamam.hits.map(hit => {
       const recipe = hit.recipe;
-      const dayIndex = index % 7; // distribui nos dias da semana
-      const mealType = recipe.mealType?.[0] || "Breakfast"; // padrão para "Breakfast" se não houver
-
-      // Monta objeto meal no formato do DTO
-      const meal = {
-        mealType: mealType.charAt(0).toUpperCase() + mealType.slice(1), // capitaliza
+      const mealType = recipe.mealType?.[0] || "Breakfast";
+      return {
+        mealType: mealType.charAt(0).toUpperCase() + mealType.slice(1),
         uriEdamam: recipe.uri,
         imageUrl: recipe.image,
         urlRecipe: recipe.url,
@@ -750,16 +745,21 @@ export default function Register() {
         yield: recipe.yield || 1,
         prepareInstructions: recipe.ingredientLines?.join(', ') || "Sem instruções"
       };
-
-      // Adiciona ao plano do dia correspondente
-      mealPlan[dayIndex].meals.push(meal);
     });
 
-    
+    if (meals.length === 20) {
+      meals.push({ ...meals[0] });
+    }
+
+    meals.forEach((meal, index) => {
+      const dayIndex = Math.floor(index / 3); // 3 refeições por dia
+      if (mealPlan[dayIndex]) {
+        mealPlan[dayIndex].meals.push(meal);
+      }
+    });
 
     // Monta objeto final
     const finalPayload = { plans: mealPlan };
-    console.log(finalPayload)
     return finalPayload;
   };
 
@@ -804,16 +804,18 @@ export default function Register() {
 
       const formatMeal = await buildMealPlanToBackend(responseURIs);
 
-      console.log(formatMeal);
+      // console.log(formatMeal);
 
-
+      const sendData = {
+        ...formData,
+        ...formatMeal
+      }
 
       // Chamada para a API de registro
-      // const response = await axios.post("http://localhost:8080/api/auth/register", finalFormData)
-
+      const response = await axios.post("http://localhost:8080/api/auth/register", sendData)
       // Se o registro for bem-sucedido
       // console.log("Registro bem-sucedido:", response.data)
-      // navigate("/")
+      // navigate("/")s
     } catch (err) {
       // console.error("Erro no registro:", err)
       console.log(err)
