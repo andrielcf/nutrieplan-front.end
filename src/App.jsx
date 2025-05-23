@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import AuthPage from "./pages/AuthPage"
 import HomePage from "./pages/HomePage"
+import LandingPage from "./pages/LandingPage"
 import AuthenticatedRoute from "./components/AuthenticatedRoute"
 import NotAuthenticatedRoute from "./components/NotAuthenticatedRoute"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { Flip, Slide } from "react-toastify/unstyled"
 
 function App() {
   return (
@@ -37,6 +37,16 @@ function App() {
             </AuthenticatedRoute>
           }
         />
+        {/* <Route path="/create-plan" element={
+          <AuthenticatedRoute>
+            <CreatePlan/>
+          </AuthenticatedRoute>
+        }></Route> */}
+        <Route path="/landing" element={
+          <AuthenticatedRoute>
+            <LandingPage/>
+          </AuthenticatedRoute>
+        }></Route>
         <Route
           path="/"
           element={
@@ -45,6 +55,7 @@ function App() {
             </NotAuthenticatedRoute>
           }
         />
+        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       

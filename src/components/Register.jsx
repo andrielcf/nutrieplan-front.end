@@ -57,7 +57,18 @@ const BasicInfoStep = ({ formData, setFormData, onNext, setError }) => {
         onNext()
       }
     } catch (err) {
-      setError("Erro ao verificar email. Tente novamente.")
+      // setError("Erro ao verificar email. Tente novamente.")
+      toast.error('Problema ao conectar com servidor', {
+        position: "top-center",
+        autoClose: 1000,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Flip,
+      });
     } finally {
       setCheckingEmail(false)
     }
@@ -125,8 +136,8 @@ const BasicInfoStep = ({ formData, setFormData, onNext, setError }) => {
         onClick={checkEmailExists}
         disabled={!isValid || checkingEmail}
         className={`w-full py-2 px-4 rounded-lg transition-all duration-300 ${isValid && !checkingEmail
-            ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
-            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+          ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
+          : "bg-gray-200 text-gray-500 cursor-not-allowed"
           }`}
       >
         {checkingEmail ? "Verificando..." : "Prosseguir"}
@@ -165,10 +176,10 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
   ]
 
   const dietLabels = [
-    { id: 1, label: "Balanceada" },
-    { id: 2, label: "High-Protein" },
-    { id: 3, label: "Low-Fat" },
-    { id: 4, label: "Low-Carb" }
+    { id: 1, label: "Balanceada (Info)" },
+    { id: 2, label: "High-Protein (Info)" },
+    { id: 3, label: "Low-Fat (Info)" },
+    { id: 4, label: "Low-Carb (Info)" }
   ]
 
   const healthLabels = [
@@ -384,7 +395,7 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
                 className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
               />
               <label htmlFor={`health-${label.id}`} className="ml-2 block text-sm text-gray-700">
-                {label.label}
+                {label.label} {label.id}
               </label>
             </div>
           ))}
@@ -402,8 +413,8 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
           onClick={onNext}
           disabled={!isValid}
           className={`flex-1 py-2 px-4 rounded-lg transition-all duration-300 ${isValid
-              ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
+            : "bg-gray-200 text-gray-500 cursor-not-allowed"
             }`}
         >
           Continuar
@@ -425,19 +436,16 @@ const ReviewStep = ({ formData, onBack, onSubmit, loading }) => {
 
   const dietLabelLabels = {
     1: "Balanceada",
-    2: "Low-Carb",
+    2: "High-Protein",
     3: "Low-Fat",
-    4: "High-Protein",
-    5: "Keto"
+    4: "Low-Carb"
   }
 
   const healthLabelLabels = {
-    1: "Vegetariana",
-    2: "Vegana",
-    3: "Sem lactose",
-    4: "Sem glúten",
-    5: "Sem açúcar",
-    6: "Baixo sódio"
+    1: "Vegana",
+    2: "Vegetariana",
+    3: "Sem glúten",
+    4: "Sem lactose",
   }
 
   return (
@@ -462,7 +470,7 @@ const ReviewStep = ({ formData, onBack, onSubmit, loading }) => {
             <p className="text-gray-600 mt-2">Restrições:</p>
             <ul className="list-disc list-inside">
               {formData.profile.healthLabelsIds.map(id => (
-                <li key={id}>{healthLabelLabels[id]}</li>
+                <li key={id}>{healthLabelLabels[id]} {id}</li>
               ))}
             </ul>
           </>
@@ -480,8 +488,8 @@ const ReviewStep = ({ formData, onBack, onSubmit, loading }) => {
           onClick={onSubmit}
           disabled={loading}
           className={`flex-1 py-2 px-4 rounded-lg transition-all duration-300 ${!loading
-              ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
+            : "bg-gray-200 text-gray-500 cursor-not-allowed"
             }`}
         >
           {loading ? "Enviando..." : "Criar Conta"}
@@ -498,17 +506,17 @@ export default function Register() {
   const [error, setError] = useState("")
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
+    email: "teste@gmail.com",
+    password: "123456",
+    confirmPassword: "123456",
     profile: {
-      name: "",
-      weight: "",
-      height: "",
-      age: "",
-      gender: "",
-      activityLevelId: "",
-      dietLabelId: "",
+      name: "Arnaldo",
+      weight: "75",
+      height: "180",
+      age: "20",
+      gender: "MALE",
+      activityLevelId: "3",
+      dietLabelId: "3",
       healthLabelsIds: []
     }
   })
@@ -528,19 +536,251 @@ export default function Register() {
     setCurrentStep((prev) => Math.max(prev - 1, 0))
     setError("")
   }
-  
+
+  const generateMealPlan = async (userData) => {
+    try {
+      // Mapear dietLabelId para os valores da Edamam
+      const dietMap = {
+        1: "BALANCED",
+        2: "HIGH_PROTEIN",
+        3: "LOW_FAT",
+        4: "LOW_CARB"
+      };
+
+      // Mapear healthLabelsIds para os valores da Edamam
+      const healthMap = {
+        1: "VEGAN",
+        2: "VEGETARIAN",
+        3: "GLUTEN_FREE",
+        4: "DAIRY_FREE" // Note: Edamam usa "DAIRY_FREE" em vez de "LACTOSE_FREE"
+      };
+
+      const getCalorieRange = (activityLevelId, gender, weight, height, age) => {
+        // Fórmula de Harris-Benedict para Taxa Metabólica Basal (TMB)
+        let tmb;
+        if (gender === "MALE") {
+          tmb = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+        } else {
+          tmb = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+        }
+
+        // Fatores de atividade (TDEE - Total Daily Energy Expenditure)
+        const activityFactors = {
+          1: 1.2,   // Sedentário
+          2: 1.375, // Levemente ativo
+          3: 1.55,  // Moderadamente ativo
+          4: 1.725, // Muito ativo
+          5: 1.9    // Extremamente ativo
+        };
+
+        const activityFactor = activityFactors[activityLevelId] || 1.2;
+        const tdee = tmb * activityFactor;
+
+        // Definimos uma margem de ±20% para criar um intervalo
+        const margin = 0.2; // 20%
+
+        return {
+          min: 100,
+          max: Math.floor(tdee)
+        };
+      };
+
+      const calorieRange = getCalorieRange(
+        parseInt(userData.profile.activityLevelId),
+        userData.profile.gender,
+        parseFloat(userData.profile.weight),
+        parseFloat(userData.profile.height),
+        parseInt(userData.profile.age)
+      );
+
+      console.log(calorieRange);
+
+      // Preparar os dados para a requisição
+      const requestData = {
+        size: 7,
+        plan: {
+          accept: {
+            all: [
+              {
+                health: userData.profile.healthLabelsIds
+                  .map(id => healthMap[id])
+                  .filter(Boolean) // Remove valores undefined
+              },
+              {
+                diet: userData.profile.dietLabelId ?
+                  [dietMap[userData.profile.dietLabelId]] :
+                  []
+              }
+            ]
+          },
+          fit: {
+            ENERC_KCAL: calorieRange
+          },
+          sections: {
+            Breakfast: {
+              accept: {
+                all: [
+                  {
+                    meal: ["breakfast"]
+                  }
+                ]
+              }
+            },
+            Lunch: {
+              accept: {
+                all: [
+                  {
+                    meal: ["lunch/dinner"]
+                  }
+                ]
+              }
+            },
+            Dinner: {
+              accept: {
+                all: [
+                  {
+                    meal: ["lunch/dinner"]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      };
+
+      // Fazer a requisição
+      const response = await axios.post(
+        'https://api.edamam.com/api/meal-planner/v1/1a407993/select?type=public',
+        requestData,
+        {
+          headers: {
+            'accept': 'application/json',
+            'Edamam-Account-User': '1a407993',
+            'Authorization': 'Basic MWE0MDc5OTM6NjU4OTFmMzEyMDExMWJiODZjOGYwYzM3YmNkYjc0YjQ=',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao gerar plano de refeições:", error);
+      throw error;
+    }
+  };
+
+  function extractAllRecipeLinks(apiResponse) {
+    // Verifica se a resposta é válida
+    if (!apiResponse?.selection || !Array.isArray(apiResponse.selection)) {
+      console.error("Formato de resposta inválido");
+      return [];
+    }
+
+    // Extrai todos os links assigned em uma lista única
+    const allRecipes = apiResponse.selection.flatMap(day =>
+      Object.values(day.sections || {})
+        .map(section => section?.assigned)
+        .filter(link => link) // Remove valores undefined/null
+    );
+
+    return allRecipes;
+  }
+
+  const fetchRecipesByUris = async (uris) => {
+    try {
+      // Configurações da API
+      const app_id = '1a407993';
+      const app_key = '65891f3120111bb86c8f0c37bcdb74b4';
+      const fields = ['uri', 'image', 'url', 'yield', 'ingredientLines', 'calories', 'mealType', 'totalNutrients'];
+
+      // Preparar os parâmetros da URL
+      const params = new URLSearchParams();
+      uris.forEach(uri => params.append('uri', uri));
+      fields.forEach(field => params.append('field', field));
+      params.append('app_id', app_id);
+      params.append('app_key', app_key);
+
+      // Configurar os headers
+      const headers = {
+        'accept': 'application/json',
+        'Accept-Language': 'en',
+        'Edamam-Account-User': app_id
+      };
+
+      // Fazer a requisição
+      const response = await axios.get('https://api.edamam.com/api/recipes/v2/by-uri', {
+        params,
+        headers
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      throw error;
+    }
+  };
+
+  const createUserMealPlan = async (responseURIS) => {
+
+    
+  };
+
 
   const handleSubmit = async () => {
     setLoading(true)
     setError("")
 
     try {
+      // const responseMealPlan = await generateMealPlan(finalFormData);
+      // console.log("Plano de refeições:", responseMealPlan);
+
+
+      // const recipeAssigned = extractAllRecipeLinks(responseMealPlan);
+      // console.log(recipeAssigned)
+
+      // const recipeAssigned = ["http://www.edamam.com/ontologies/edamam.owl#recipe_07ec7b12783881260310e343c05b76dd", "http://www.edamam.com/ontologies/edamam.owl#recipe_6c3ff148015f4127bedcf1744d5eb7df"]
+      // const recipeAssigned = [
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_80200296eb3af55c3a08fd09c8710cd0",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_6bf44027942545541b7fb8f565f130f5",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_d373695b2d1a40c65fabe7930755b0d8",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_9d09ffea7480bce5b0e4d0c305a4f5e6",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_78d57924ef48134f4ac88877e79053d2",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_b2649024a34b27ce3e77845fa2af3424",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_6a92cc63077ec190526c632a413b77fa",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_c1f34241eb7f5a259113826b8c381fec",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_ec45bac5ebcecf36b5c8e266da8106e4",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_9f1d790b1cc4f2e1eebb950aa6eff2d9",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_56cf0e8dedaf0fc62e1cd536079e55f2",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_3c87f828f5e8a136aba78f9bc9be0f45",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_9da4bf3d8b18b7c6922fb57efa88194c",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_a8a6e73a90c38b91acaf20d1dfc4ccbd",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_2394691ec4c57d8cc702434b21f2c53e",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_1b09ae2e75a044da0b7190e9f656ab67",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_9864f832fd3b22da4d762d74bd1d1b89",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_d5f70e771ec94687a6d2a39044d13c5f",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_086349dac01db4595cd8c766ed3996ab",
+      //   "http://www.edamam.com/ontologies/edamam.owl#recipe_8aedcec23c88395ce731940bb51b8ed2"
+      // ]
+      const recipeAssigned = [
+        "http://www.edamam.com/ontologies/edamam.owl#recipe_80200296eb3af55c3a08fd09c8710cd0",
+        "http://www.edamam.com/ontologies/edamam.owl#recipe_6bf44027942545541b7fb8f565f130f5",
+        "http://www.edamam.com/ontologies/edamam.owl#recipe_d373695b2d1a40c65fabe7930755b0d8",
+        "http://www.edamam.com/ontologies/edamam.owl#recipe_9d09ffea7480bce5b0e4d0c305a4f5e6"
+      ]
+
+      const responseURIs = await fetchRecipesByUris(recipeAssigned);
+      console.log(responseURIs);
+
+      const userMealPlan = await createUserMealPlan(responseURIs);
+
+
+
       // Chamada para a API de registro
-      const response = await axios.post("http://localhost:8080/api/auth/register", finalFormData)
+      // const response = await axios.post("http://localhost:8080/api/auth/register", finalFormData)
 
       // Se o registro for bem-sucedido
-      console.log("Registro bem-sucedido:", response.data)
-      navigate("/")
+      // console.log("Registro bem-sucedido:", response.data)
+      // navigate("/")
     } catch (err) {
       // console.error("Erro no registro:", err)
       console.log(err)
