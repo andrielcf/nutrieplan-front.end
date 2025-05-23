@@ -9,7 +9,7 @@ export default function LandingPage() {
             {/* Navigation */}
             <nav className="container mx-auto px-4 py-6 flex items-center justify-between">
                 <div className="flex items-center">
-                    {/* <Image src="./src/assets/Nutri_Plan-Logo.svg" alt="Nutri&Plan Logo" width={150} height={50} className="h-10 w-auto" /> */}
+                    <p>Nutri & Plan LOGO</p>{/* <Image src="./src/assets/Nutri_Plan-Logo.svg" alt="Nutri&Plan Logo" width={150} height={50} className="h-10 w-auto" /> */}
                 </div>
                 <div className="hidden md:flex space-x-8">
                     <button onClick={() => navigate("/features")} className="hover:text-green-500 transition-all duration-300">
@@ -56,6 +56,7 @@ export default function LandingPage() {
                             height={500}
                             className="relative z-10 rounded-2xl shadow-xl"
                         /> */}
+                        <p>Nutri & Plan SVG</p>
                     </div>
                 </div>
             </section>

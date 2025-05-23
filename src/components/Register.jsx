@@ -669,7 +669,7 @@ export default function Register() {
     }
   };
 
-  function extractAllRecipeLinks(apiResponse) {
+  function extractAllRecipeUris(apiResponse) {
     // Verifica se a resposta é válida
     if (!apiResponse?.selection || !Array.isArray(apiResponse.selection)) {
       console.error("Formato de resposta inválido");
@@ -681,7 +681,7 @@ export default function Register() {
       Object.values(day.sections || {})
         .map(section => section?.assigned)
         .filter(link => link) // Remove valores undefined/null
-    );
+    ).slice(0, -1);
 
     return allRecipes;
   }
@@ -720,9 +720,47 @@ export default function Register() {
     }
   };
 
-  const createUserMealPlan = async (responseURIS) => {
+  const buildMealPlanToBackend = async (recipesFromEdamam) => {
+    // Dias da semana para associar cada receita (exemplo simples com dias fixos)
+    const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+
+    // Inicializa estrutura de planos com os dias da semana
+    const mealPlan = daysOfWeek.map((day) => ({
+      dayOfWeek: day,
+      meals: []
+    }));
+
+    // Percorre cada receita recebida
+    recipesFromEdamam.hits.forEach((hit, index) => {
+      const recipe = hit.recipe;
+      const dayIndex = index % 7; // distribui nos dias da semana
+      const mealType = recipe.mealType?.[0] || "Breakfast"; // padrão para "Breakfast" se não houver
+
+      // Monta objeto meal no formato do DTO
+      const meal = {
+        mealType: mealType.charAt(0).toUpperCase() + mealType.slice(1), // capitaliza
+        uriEdamam: recipe.uri,
+        imageUrl: recipe.image,
+        urlRecipe: recipe.url,
+        calories: recipe.calories || 0,
+        carbohydrate: recipe.totalNutrients?.CHOCDF?.quantity || 0,
+        protein: recipe.totalNutrients?.PROCNT?.quantity || 0,
+        fat: recipe.totalNutrients?.FAT?.quantity || 0,
+        fiber: recipe.totalNutrients?.FIBTG?.quantity || 0,
+        yield: recipe.yield || 1,
+        prepareInstructions: recipe.ingredientLines?.join(', ') || "Sem instruções"
+      };
+
+      // Adiciona ao plano do dia correspondente
+      mealPlan[dayIndex].meals.push(meal);
+    });
 
     
+
+    // Monta objeto final
+    const finalPayload = { plans: mealPlan };
+    console.log(finalPayload)
+    return finalPayload;
   };
 
 
@@ -731,14 +769,13 @@ export default function Register() {
     setError("")
 
     try {
-      // const responseMealPlan = await generateMealPlan(finalFormData);
+      const responseMealPlan = await generateMealPlan(finalFormData);
       // console.log("Plano de refeições:", responseMealPlan);
 
 
-      // const recipeAssigned = extractAllRecipeLinks(responseMealPlan);
+      const recipeAssigned = extractAllRecipeUris(responseMealPlan);
       // console.log(recipeAssigned)
 
-      // const recipeAssigned = ["http://www.edamam.com/ontologies/edamam.owl#recipe_07ec7b12783881260310e343c05b76dd", "http://www.edamam.com/ontologies/edamam.owl#recipe_6c3ff148015f4127bedcf1744d5eb7df"]
       // const recipeAssigned = [
       //   "http://www.edamam.com/ontologies/edamam.owl#recipe_80200296eb3af55c3a08fd09c8710cd0",
       //   "http://www.edamam.com/ontologies/edamam.owl#recipe_6bf44027942545541b7fb8f565f130f5",
@@ -761,17 +798,13 @@ export default function Register() {
       //   "http://www.edamam.com/ontologies/edamam.owl#recipe_086349dac01db4595cd8c766ed3996ab",
       //   "http://www.edamam.com/ontologies/edamam.owl#recipe_8aedcec23c88395ce731940bb51b8ed2"
       // ]
-      const recipeAssigned = [
-        "http://www.edamam.com/ontologies/edamam.owl#recipe_80200296eb3af55c3a08fd09c8710cd0",
-        "http://www.edamam.com/ontologies/edamam.owl#recipe_6bf44027942545541b7fb8f565f130f5",
-        "http://www.edamam.com/ontologies/edamam.owl#recipe_d373695b2d1a40c65fabe7930755b0d8",
-        "http://www.edamam.com/ontologies/edamam.owl#recipe_9d09ffea7480bce5b0e4d0c305a4f5e6"
-      ]
 
       const responseURIs = await fetchRecipesByUris(recipeAssigned);
-      console.log(responseURIs);
+      // console.log(responseURIs);
 
-      const userMealPlan = await createUserMealPlan(responseURIs);
+      const formatMeal = await buildMealPlanToBackend(responseURIs);
+
+      console.log(formatMeal);
 
 
 
