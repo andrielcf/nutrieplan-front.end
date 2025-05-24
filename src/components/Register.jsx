@@ -395,7 +395,7 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
                 className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
               />
               <label htmlFor={`health-${label.id}`} className="ml-2 block text-sm text-gray-700">
-                {label.label} {label.id}
+                {label.label}
               </label>
             </div>
           ))}
@@ -506,17 +506,17 @@ export default function Register() {
   const [error, setError] = useState("")
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "teste@gmail.com",
-    password: "123456",
-    confirmPassword: "123456",
+    email: "",
+    password: "",
+    confirmPassword: "",
     profile: {
-      name: "Arnaldo",
-      weight: "75",
-      height: "180",
-      age: "20",
-      gender: "MALE",
-      activityLevelId: "3",
-      dietLabelId: "3",
+      name: "",
+      weight: "",
+      height: "",
+      age: "",
+      gender: "",
+      activityLevelId: "",
+      dietLabelId: "",
       healthLabelsIds: []
     }
   })
@@ -770,11 +770,8 @@ export default function Register() {
 
     try {
       const responseMealPlan = await generateMealPlan(finalFormData);
-      // console.log("Plano de refeições:", responseMealPlan);
-
 
       const recipeAssigned = extractAllRecipeUris(responseMealPlan);
-      // console.log(recipeAssigned)
 
       // const recipeAssigned = [
       //   "http://www.edamam.com/ontologies/edamam.owl#recipe_80200296eb3af55c3a08fd09c8710cd0",
@@ -800,11 +797,8 @@ export default function Register() {
       // ]
 
       const responseURIs = await fetchRecipesByUris(recipeAssigned);
-      // console.log(responseURIs);
 
       const formatMeal = await buildMealPlanToBackend(responseURIs);
-
-      // console.log(formatMeal);
 
       const sendData = {
         ...formData,
@@ -812,10 +806,15 @@ export default function Register() {
       }
 
       // Chamada para a API de registro
-      const response = await axios.post("http://localhost:8080/api/auth/register", sendData)
+      const response = await axios.post("http://localhost:8080/api/auth/register", sendData);
+      const responseLogin = await axios.post("http://localhost:8080/api/auth/login", {
+        "email": sendData.email,
+        "password": sendData.password
+      });
       // Se o registro for bem-sucedido
       // console.log("Registro bem-sucedido:", response.data)
-      // navigate("/")s
+      localStorage.setItem("token", responseLogin.data.token);
+      navigate("/")
     } catch (err) {
       // console.error("Erro no registro:", err)
       console.log(err)
