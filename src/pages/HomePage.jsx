@@ -350,7 +350,7 @@ export default function Home() {
                         <div className="flex-1">
                           <div className="flex justify-between">
                             <span className="font-medium text-gray-800">
-                              {translateMealType(meal.mealType)} - {meal.calories.toFixed(0)} kcal
+                              {translateMealType(meal.mealType)} - {((meal.calories / meal.yield) * meal.consumeYield).toFixed()} kcal
                             </span>
                           </div>
                           {meal.prepareInstructions && (
@@ -395,15 +395,25 @@ export default function Home() {
               )}
 
               <div>
-                <h5 className="mb-2">Informações Nutricionais</h5>
+                <div className="grid gap-4">
+                  <h5 className="mb-2">Informações Nutricionais</h5>
+                  <div className="flex justify-between">
+                    <h6>Consumir: ({selectedMeal.consumeYield.toFixed(1)}) Porções</h6>
+                    <h6>Você vai consumir {((selectedMeal.calories / selectedMeal.yield) * selectedMeal.consumeYield).toFixed()} Kcal - por refeição</h6>
+                  </div>
+
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Calorias totais</small>
-                    <p>{selectedMeal.calories.toFixed(0)} kcal</p>
+                    <small className="text-muted">Calorias</small>
+                    <p>{(selectedMeal.calories).toFixed(0)} kcal</p>
+                    <p>{((selectedMeal.calories / selectedMeal.yield) * selectedMeal.consumeYield).toFixed()} Kcal</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Calorias por porção</small>
+                    <small className="text-muted">Calorias por porção (refeição)</small>
+                    {/* <p>{(selectedMeal.calories / selectedMeal.yield).toFixed(0)} kcal</p> */}
                     <p>{(selectedMeal.calories / selectedMeal.yield).toFixed(0)} kcal</p>
+                    <p>{selectedMeal.yield.toFixed(0)} - Porções</p>
                   </div>
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <small className="text-muted">Proteínas</small>
@@ -453,7 +463,7 @@ export default function Home() {
           <Button
             variant="secondary"
             onClick={() => setOpenModal(false)}
-            className="mr-2"
+            className="mr-2 color: bg-red-500"
           >
             Fechar
           </Button>
