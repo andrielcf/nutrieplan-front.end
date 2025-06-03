@@ -138,7 +138,7 @@ export default function Home() {
             position: "top-center",
             autoClose: 2000,
           });
-          navigate("/auth");
+          navigate("/auth/login");
         } else {
           toast.error('Erro ao carregar dados da semana', {
             position: "top-center",
@@ -180,9 +180,6 @@ export default function Home() {
     setCaloriesConsumed(0);
   };
 
-  console.log(selectedDay)
-  console.log(selectedDate)
-
   // Abrir modal com detalhes da refeição
   const handleOpenModal = (meal) => {
     setSelectedMeal(meal);
@@ -201,12 +198,31 @@ export default function Home() {
 
 
   // Marcar refeição como concluída
-  const markAsCompleted = async (mealId) => {
+  const markAsCompleted = async (meal) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:8080/api/refeicao/concluir/${mealId}`, {}, {
+
+      // Formata a data para o padrão ISO (yyyy-MM-dd)
+      const [day, month, year] = selectedDate.split('/');
+      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+      // Prepara os dados para enviar
+      const foodlogData = {
+        localDate: formattedDate,
+        dayOfWeek: daysOfWeek.find(day => day.pt === selectedDay).en,
+        name: meal.mealType,
+        calories: (meal.calories / meal.yield) * meal.consumeYield,
+        carbohydrate: (meal.carbohydrate / meal.yield) * meal.consumeYield,
+        protein: (meal.protein / meal.yield) * meal.consumeYield,
+        fat: (meal.fat / meal.yield) * meal.consumeYield,
+        fiber: (meal.fiber / meal.yield) * meal.consumeYield,
+        consumeYield: meal.consumeYield
+      };
+
+      await axios.post(`http://localhost:8080/api/foodlog/consume`, foodlogData, {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
@@ -222,7 +238,7 @@ export default function Home() {
         position: "top-center",
         autoClose: 1000,
       });
-      console.log(mealId, selectedDate, selectedDay)
+      console.error(error);
     }
   };
 
@@ -469,7 +485,7 @@ export default function Home() {
           </Button>
           <Button className="color: bg-green-400"
             variant="success"
-            onClick={() => selectedMeal && markAsCompleted(selectedMeal.id)}
+            onClick={() => selectedMeal && markAsCompleted(selectedMeal)}
           >
             Marcar como concluído
           </Button>
