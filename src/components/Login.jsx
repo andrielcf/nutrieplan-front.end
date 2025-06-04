@@ -94,7 +94,7 @@ export default function Login() {
             <p className="text-gray-500 mt-1">Entre em sua conta!</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 space-y-4 animate-fadeIn">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email

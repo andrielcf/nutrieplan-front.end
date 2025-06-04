@@ -56,7 +56,7 @@ function App() {
           }
         />
         
-        <Route path="*" element={<Navigate to="/landing" replace />} />
+        <Route path="/*" element={<Navigate to="/landing" replace />} />
       </Routes>
       
     </BrowserRouter>
