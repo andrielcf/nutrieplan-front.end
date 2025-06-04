@@ -1,26 +1,29 @@
 import { ArrowRight, Leaf, Brain, BarChart3 } from "lucide-react"
 import { Link } from "react-router-dom"
 import NutriPlanLogo from "../assets/nutrieplan-title-v2.svg"
+import NutriPlanLogoNoTitle from "../assets/nutrieplan-notitle-v2.svg"
 
 export default function LandingPage() {
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 text-gray-600">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 text-gray-600 animate-fadeIn">
             {/* Navigation */}
             <nav className="container mx-auto px-4 py-6 flex items-center justify-between">
-                <div className="flex items-center">
-                    <img src={NutriPlanLogo} alt="Nutri&Plan Logo" className="h-24 w-auto" />
+                <div className="flex items-center ">
+                    <Link to={"/landing"} className="transition-all duration-300 hover:scale-110">
+                        <img src={NutriPlanLogoNoTitle} alt="Nutri&Plan Logo" className="h-24 w-auto" />
+                    </Link>
                 </div>
 
                 <div>
                     <Link to={"/auth/login"}>
-                        <button className="bg-white text-green-500 px-6 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300">
+                        <button className="transition-all duration-300 hover:scale-110 bg-white text-green-500 px-6 py-2 rounded-full shadow-md hover:shadow-lg transition-all duration-300">
                             Entrar
                         </button>
                     </Link>
 
                     <Link to={"/auth/register"}>
-                        <button className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:shadow-lg ml-4 transition-all duration-300">
+                        <button className="transition-all duration-300 hover:scale-110 bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:shadow-lg ml-4 transition-all duration-300">
                             Cadastrar-se
                         </button>
                     </Link>
@@ -39,7 +42,7 @@ export default function LandingPage() {
                         Planeje suas refeições, monitore suas calorias e alcance seus objetivos de saúde com o planejamento nutricional baseado em IA.
                     </p>
                     <Link to={"/"} className="no-underline">
-                        <button className="bg-green-500 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl flex items-center transition-all duration-300 transform hover:translate-y-[-2px]">
+                        <button className="transition-all duration-300 hover:scale-110 animate-bounce bg-green-500 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl flex items-center transition-all duration-300 transform hover:translate-y-[-2px]">
                             Começar <ArrowRight className="ml-2 h-5 w-5" />
                         </button>
                     </Link>
@@ -48,7 +51,7 @@ export default function LandingPage() {
                     <div className="relative w-full max-w-md">
                         <div className="absolute inset-0 bg-green-200 rounded-full blur-3xl opacity-20"></div>
                         <img
-                            src={NutriPlanLogo}
+                            src={NutriPlanLogoNoTitle}
                             alt="Nutri&Plan Logo"
                             className="relative z-10 rounded-2xl shadow-xl w-full h-auto"
                         />
@@ -65,7 +68,7 @@ export default function LandingPage() {
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {/* Feature Card 1 */}
-                    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transition-all duration-300 hover:scale-110">
                         <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-6">
                             <Leaf className="h-6 w-6 text-green-500" />
                         </div>
@@ -76,7 +79,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Feature Card 2 */}
-                    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transition-all duration-300 hover:scale-110">
                         <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-6">
                             <Brain className="h-6 w-6 text-green-500" />
                         </div>
@@ -87,7 +90,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Feature Card 3 */}
-                    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transition-all duration-300 hover:scale-110">
                         <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mb-6">
                             <BarChart3 className="h-6 w-6 text-green-500" />
                         </div>
@@ -106,9 +109,9 @@ export default function LandingPage() {
                     <p className="text-xl max-w-2xl mx-auto">Três passos simples para transformar seus hábitos alimentares</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-start space-y-12 md:space-y-0">
+                <div className="flex flex-col md:flex-row justify-between items-center md:items-start space-y-12 md:space-y-0 ">
                     {/* Step 1 */}
-                    <div className="flex flex-col items-center max-w-xs">
+                    <div className="flex flex-col items-center max-w-xs transition-all duration-300 hover:scale-110">
                         <div className="h-16 w-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-6">
                             1
                         </div>
@@ -119,7 +122,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Step 2 */}
-                    <div className="flex flex-col items-center max-w-xs">
+                    <div className="flex flex-col items-center max-w-xs transition-all duration-300 hover:scale-110">
                         <div className="h-16 w-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-6">
                             2
                         </div>
@@ -130,7 +133,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Step 3 */}
-                    <div className="flex flex-col items-center max-w-xs">
+                    <div className="flex flex-col items-center max-w-xs transition-all duration-300 hover:scale-110">
                         <div className="h-16 w-16 bg-green-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-6">
                             3
                         </div>
@@ -153,7 +156,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                         <Link to={"/"} className="no-underline">
-                            <button className="bg-green-500 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl flex items-center transition-all duration-300 transform hover:translate-y-[-2px] text-lg">
+                            <button className="transition-all duration-300 hover:scale-110 animate-bounce bg-green-500 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl flex items-center transition-all duration-300 transform hover:translate-y-[-2px] text-lg">
                                 Iniciar Teste <ArrowRight className="ml-2 h-5 w-5" />
                             </button>
                         </Link>
@@ -174,8 +177,8 @@ export default function LandingPage() {
                             <h3 className="font-bold text-lg mb-4">Contato</h3>
                             <ul className="space-y-2">
                                 <li>contato@nutrieplan.com</li>
-                                <li>+55 (48) 9913760479</li>
-                                <li>R. João Pereira dos Santos, 303 - Pte. do Imaruim, Palhoça - SC, 88130-475</li>
+                                <li>+55 (48) 9913760-XXX</li>
+                                <li>Faculdade Senac Palhoça - R. João Pereira dos Santos, 303 - Pte. do Imaruim, Palhoça - SC, 88130-475</li>
                             </ul>
                         </div>
                     </div>
