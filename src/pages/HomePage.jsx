@@ -50,7 +50,7 @@ export default function Home() {
         });
         setTdee(response.data); // Supondo que a API retorne { tdee: valor }
         setCaloriesGoal(response.data);
-        console.log(response.data + "TDEE")
+        // console.log(response.data + "TDEE")
       } catch (error) {
         console.error('Erro ao buscar TDEE:', error);
         toast.error('Erro ao carregar meta de calorias', {
@@ -117,6 +117,35 @@ export default function Home() {
     fetchWeeklyData();
   }, [navigate]);
 
+  // Função para remover refeições consumidas
+  const handleRemoveMeal = async (mealId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:8080/api/foodlog/meal-remove?id=${mealId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      toast.success('Refeição removida com sucesso!', {
+        position: "top-center",
+        autoClose: 1000,
+      });
+
+      // Recarrega as refeições consumidas
+      const [day, month, year] = selectedDate.split('/');
+      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      fetchConsumedMeals(formattedDate);
+
+    } catch (error) {
+      toast.error('Erro ao remover refeição', {
+        position: "top-center",
+        autoClose: 1000,
+      });
+      console.error(error);
+    }
+  };
+
   // Função para lidar com a adição de refeição manual
   const handleAddMeal = async () => {
     try {
@@ -129,7 +158,7 @@ export default function Home() {
       const mealData = {
         localDate: formattedDate,
         dayOfWeek: daysOfWeek.find(day => day.pt === selectedDay).en,
-        name: newMeal.name,
+        name: translateMealType(newMeal.name),
         calories: parseFloat(newMeal.calories),
         protein: parseFloat(newMeal.protein),
         carbohydrate: parseFloat(newMeal.carbohydrate),
@@ -180,6 +209,7 @@ export default function Home() {
         }
       });
       setConsumedMeals(response.data);
+      console.log(response.data)
 
       // Calcular total de calorias consumidas
       const totalCalories = response.data.reduce((sum, meal) => {
@@ -209,8 +239,14 @@ export default function Home() {
 
     // Formata a data para exibição
     const formattedDate = selectedDateObj.toLocaleDateString('pt-BR');
-    // Formata a data para a API (yyyy-MM-dd)
-    const apiFormattedDate = selectedDateObj.toISOString().split('T')[0];
+    console.log("Data formatada: " + formattedDate)
+    // Formata a data para a API (manualmente para evitar problemas de fuso horário)
+    const year = selectedDateObj.getFullYear();
+    const month = String(selectedDateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDateObj.getDate()).padStart(2, '0');
+    const apiFormattedDate = `${year}-${month}-${day}`;
+
+    console.log(apiFormattedDate);
 
     setSelectedDay(dayPt);
     setSelectedDate(formattedDate);
@@ -253,7 +289,7 @@ export default function Home() {
       const foodlogData = {
         localDate: formattedDate,
         dayOfWeek: daysOfWeek.find(day => day.pt === selectedDay).en,
-        name: meal.mealType,
+        name: translateMealType(meal.mealType),
         calories: (meal.calories / meal.yield) * meal.consumeYield,
         carbohydrate: (meal.carbohydrate / meal.yield) * meal.consumeYield,
         protein: (meal.protein / meal.yield) * meal.consumeYield,
@@ -297,6 +333,7 @@ export default function Home() {
     return type === "Breakfast" ? "Café da manhã" :
       type.includes("Lunch") ? "Almoço" : "Jantar";
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4 animate-fadeIn">
@@ -397,18 +434,30 @@ export default function Home() {
                       <span className="font-medium">{meal.name}</span>
                       <span className="text-green-600">{meal.calories.toFixed(0)} kcal</span>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 mt-2 text-sm">
+                    <div className="grid grid-cols-4 gap-2 mt-2 text-sm">
                       <div>
                         <small className="text-gray-500">Proteínas</small>
-                        <p>{meal.protein.toFixed(0)}g</p>
+                        <p>{meal.protein.toFixed(0)} (g)</p>
                       </div>
                       <div>
                         <small className="text-gray-500">Carboidratos</small>
-                        <p>{meal.carbohydrate.toFixed(0)}g</p>
+                        <p>{meal.carbohydrate.toFixed(0)} (g)</p>
                       </div>
                       <div>
                         <small className="text-gray-500">Gorduras</small>
-                        <p>{meal.fat.toFixed(0)}g</p>
+                        <p>{meal.fat.toFixed(0)} (g)</p>
+                      </div>
+                      <div className="flex justify-end items-center">
+                        <button
+                          onClick={() => handleRemoveMeal(meal.id)}
+                          className="top-2 right-2 hover:text-red-500 transition-all duration-300 hover:scale-110"
+                          title="Remover refeição"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-x-circle" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+                          </svg>
+                        </button>
+
                       </div>
                     </div>
                   </div>
