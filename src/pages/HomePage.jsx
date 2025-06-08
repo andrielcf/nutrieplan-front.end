@@ -50,7 +50,6 @@ export default function Home() {
         });
         setTdee(response.data); // Supondo que a API retorne { tdee: valor }
         setCaloriesGoal(response.data);
-        // console.log(response.data + "TDEE")
       } catch (error) {
         console.error('Erro ao buscar TDEE:', error);
         toast.error('Erro ao carregar meta de calorias', {
@@ -82,16 +81,18 @@ export default function Home() {
         const dayEn = daysOfWeek[dayIndex].en;
         const dayData = response.data.find(day => day.dayOfWeek === dayEn);
 
-        // Formata a data
-        const formattedDate = today.toLocaleDateString('pt-BR');
-        // Formata a data para a API
-        const apiFormattedDate = today.toISOString().split('T')[0];
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${day}/${month}/${year}`; // Para exibição (pt-BR)
+        const apiFormattedDate = `${year}-${month}-${day}`; // Para a API (ISO)
 
         setSelectedDay(daysOfWeek[dayIndex].pt);
         setSelectedDate(formattedDate);
         setCurrentDayData(dayData || null);
 
         // Busca as refeições consumidas do dia atual
+        console.log("SELECIONANDO DIA useEffect: " + apiFormattedDate);
         fetchConsumedMeals(apiFormattedDate);
 
 
@@ -208,8 +209,9 @@ export default function Home() {
           Authorization: `Bearer ${token}`
         }
       });
-      setConsumedMeals(response.data);
+      console.log("SELECIONANDO DIA: " + date)
       console.log(response.data)
+      setConsumedMeals(response.data);
 
       // Calcular total de calorias consumidas
       const totalCalories = response.data.reduce((sum, meal) => {
@@ -239,14 +241,14 @@ export default function Home() {
 
     // Formata a data para exibição
     const formattedDate = selectedDateObj.toLocaleDateString('pt-BR');
-    console.log("Data formatada: " + formattedDate)
+    // console.log("Data formatada: " + formattedDate)
     // Formata a data para a API (manualmente para evitar problemas de fuso horário)
     const year = selectedDateObj.getFullYear();
     const month = String(selectedDateObj.getMonth() + 1).padStart(2, '0');
     const day = String(selectedDateObj.getDate()).padStart(2, '0');
     const apiFormattedDate = `${year}-${month}-${day}`;
 
-    console.log(apiFormattedDate);
+    // console.log(apiFormattedDate);
 
     setSelectedDay(dayPt);
     setSelectedDate(formattedDate);
