@@ -40,7 +40,7 @@ export default function Login() {
           progress: undefined,
           theme: "light",
           transition: Flip,
-          });
+        });
       }
     } finally {
       setLoading(false)
@@ -94,7 +94,7 @@ export default function Login() {
                   Senha
                 </label>
                 <Link
-                  to="/auth/forgot-password"
+                  to="/auth/request-reset"
                   className="text-sm text-green-600 hover:text-green-800 transition-colors"
                 >
                   Esqueceu a senha?

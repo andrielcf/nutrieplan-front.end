@@ -5,13 +5,14 @@ import AuthenticatedRoute from "./components/AuthenticatedRoute"
 import NotAuthenticatedRoute from "./components/NotAuthenticatedRoute"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import RequestResetPassword from './components/RequestResetPassword';
+import ResetPassword from './components/ResetPassword';
 import { Flip, Slide } from "react-toastify/unstyled"
 
 function App() {
   return (
     <BrowserRouter>
-      <ToastContainer
-      />
+      <ToastContainer />
       <Routes>
         <Route
           path="/auth"
@@ -38,6 +39,14 @@ function App() {
           }
         />
         <Route
+          path="/auth/request-reset"
+          element={<RequestResetPassword />}
+        />
+        <Route
+          path="/auth/reset-password"
+          element={<ResetPassword />}
+        />
+        <Route
           path="/"
           element={
             <NotAuthenticatedRoute>
@@ -47,6 +56,7 @@ function App() {
         />
       </Routes>
     </BrowserRouter>
+
   )
 }
 
