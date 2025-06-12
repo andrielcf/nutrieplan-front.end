@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Button } from "@material-tailwind/react";
-import Modal from 'react-bootstrap/Modal';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import NutriPlanLogo from "../assets/nutrieplan-title-v2.svg";
+import NutriPlanLogoNoTitle from "../assets/nutrieplan-notitle-v2.svg";
+
 
 export default function Home() {
   const [selectedDay, setSelectedDay] = useState("");
@@ -18,6 +21,7 @@ export default function Home() {
   const [showAddMealModal, setShowAddMealModal] = useState(false);
   const [consumedMeals, setConsumedMeals] = useState([]);
   const [tdee, setTdee] = useState(2000);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newMeal, setNewMeal] = useState({
     name: '',
     calories: '',
@@ -26,6 +30,10 @@ export default function Home() {
     fat: '',
     fiber: ''
   });
+
+  const [open, setOpen] = useState(false);
+
+
   const navigate = useNavigate();
 
   // Mapeamento de dias da semana
@@ -159,7 +167,7 @@ export default function Home() {
       const mealData = {
         localDate: formattedDate,
         dayOfWeek: daysOfWeek.find(day => day.pt === selectedDay).en,
-        name: translateMealType(newMeal.name),
+        name: newMeal.name,
         calories: parseFloat(newMeal.calories),
         protein: parseFloat(newMeal.protein),
         carbohydrate: parseFloat(newMeal.carbohydrate),
@@ -339,9 +347,105 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4 animate-fadeIn">
+      {/* Menu de opções */}
+      <Dialog open={open} onClose={setOpen} className="relative z-10">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500/75 transition-opacity duration-500 ease-in-out data-closed:opacity-0"
+        />
+
+        <div className="fixed inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+              <DialogPanel
+                transition
+                className="pointer-events-auto relative w-screen max-w-md transform transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700"
+              >
+                <TransitionChild>
+                  <div className="absolute top-0 left-0 -ml-8 flex pt-4 pr-2 duration-500 ease-in-out data-closed:opacity-0 sm:-ml-10 sm:pr-4">
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      className="relative rounded-md text-gray-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-hidden"
+                    >
+                      <span className="absolute -inset-2.5" />
+                      <span className="sr-only">Close panel</span>
+                      <XMarkIcon aria-hidden="true" className="size-6" />
+                    </button>
+                  </div>
+                </TransitionChild>
+                <div className="flex h-full flex-col overflow-y-auto bg-white py-6 shadow-xl">
+                  <div className="px-4 sm:px-6">
+                    <DialogTitle className="text-2xl font-bold text-green-500">Menu de Opções</DialogTitle>
+                  </div>
+                  <div className="relative mt-6 flex-col px-4 sm:px-6 justify-between h-full">
+                    <div className="flex flex-col h-full justify-between">
+                      <div>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/buscar-refeicoes");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Buscar Refeições
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/modificar-refeicoes");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Modificar Refeições
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/meal-planner");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Criar Plano Alimentar
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/configuracoes");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Configurações
+                        </button>
+                      </div>
+                      <div>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            localStorage.removeItem("token");
+                            navigate("/auth/login");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 text-red-500 transition-colors"
+                        >
+                          Sair
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </DialogPanel>
+            </div>
+          </div>
+        </div>
+      </Dialog>
       <div className="max-w-3xl mx-auto">
         {/* Cabeçalho */}
-        <header className="flex justify-between items-center mb-8">
+        {/* <header className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800"></h1>
           <Link
             to="/auth/logout"
@@ -349,7 +453,26 @@ export default function Home() {
           >
             Sair
           </Link>
+        </header> */}
+
+        {/* Cabeçalho */}
+        <header className="flex justify-between items-center mb-8">
+
+          <div className="flex items-center ">
+            <Link to={"/"} className="transition-all duration-300 hover:scale-110">
+              <img src={NutriPlanLogoNoTitle} alt="Nutri&Plan Logo" className="h-15 w-auto" />
+            </Link>
+          </div>
+          <button
+            onClick={() => setOpen(true)}
+            className="p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </header>
+
 
         {/* Contador de calorias circular */}
         <div className="flex justify-center mb-8">
@@ -519,8 +642,17 @@ export default function Home() {
                             </span>
                           </div>
                           {meal.prepareInstructions && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                              {meal.prepareInstructions}
+                            <p className="text-pretty text-gray-600 mt-1 line-clamp-2">
+                              {/* name: translateMealType(meal.mealType),
+                              calories: (meal.calories / meal.yield) * meal.consumeYield,
+                              carbohydrate: (meal.carbohydrate / meal.yield) * meal.consumeYield,
+                              protein: (meal.protein / meal.yield) * meal.consumeYield,
+                              fat: (meal.fat / meal.yield) * meal.consumeYield,
+                              fiber: (meal.fiber / meal.yield) * meal.consumeYield,
+                              consumeYield: meal.consumeYield */}
+                              {/* Proteinas: {((meal.protein / meal.yield) * meal.consumeYield).toFixed()} (g)
+                              Gorduras: {((meal.fat / meal.yield) * meal.consumeYield).toFixed()} (g)  */}
+                              Ver instruções de preparo
                             </p>
                           )}
                         </div>
@@ -537,201 +669,262 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <Modal show={openModal} onHide={() => setOpenModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>{selectedMeal ? translateMealType(selectedMeal.mealType) : ''}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ maxHeight: '40rem', overflowY: 'auto' }}>
-          {selectedMeal && (
-            <div className="space-y-6">
-              {selectedMeal.imageUrl && (
-                <div className="d-flex justify-content-center mb-4">
-                  <img
-                    src={selectedMeal.imageUrl}
-                    alt={selectedMeal.mealType}
-                    className="h-30 rounded-md object-cover"
-                  />
-                </div>
-              )}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} className="relative z-50">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        />
 
-              <div>
-                <div className="grid gap-4">
-                  <h5 className="mb-2">Informações Nutricionais</h5>
-                  <div className="flex justify-between">
-                    <h6>Consumir: ({selectedMeal.consumeYield.toFixed(1)}) Porções</h6>
-                    <h6>Você vai consumir {((selectedMeal.calories / selectedMeal.yield) * selectedMeal.consumeYield).toFixed()} Kcal - por refeição</h6>
-                  </div>
-
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+            >
+              <div className="flex flex-col h-[80vh]">
+                <div className="flex justify-between items-center p-4 border">
+                  <DialogTitle as="h3" className="text-lg font-semibold text-gray-900">
+                    {selectedMeal ? translateMealType(selectedMeal.mealType) : ''}
+                  </DialogTitle>
+                  <button
+                    onClick={() => setOpenModal(false)}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <span className="sr-only">Fechar</span>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Calorias</small>
-                    <p>{(selectedMeal.calories).toFixed(0)} kcal</p>
-                    <p>{((selectedMeal.calories / selectedMeal.yield) * selectedMeal.consumeYield).toFixed()} Kcal</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Calorias por porção (refeição)</small>
-                    {/* <p>{(selectedMeal.calories / selectedMeal.yield).toFixed(0)} kcal</p> */}
-                    <p>{(selectedMeal.calories / selectedMeal.yield).toFixed(0)} kcal</p>
-                    <p>{selectedMeal.yield.toFixed(0)} - Porções</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Proteínas</small>
-                    <p>{selectedMeal.protein.toFixed(1)}g</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Carboidratos</small>
-                    <p>{selectedMeal.carbohydrate.toFixed(1)}g</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Gorduras</small>
-                    <p>{selectedMeal.fat.toFixed(1)}g</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <small className="text-muted">Fibras</small>
-                    <p>{selectedMeal.fiber.toFixed(1)}g</p>
+
+                <div className="flex-1 overflow-y-auto p-4">
+                  {selectedMeal && (
+                    <div className="space-y-6">
+                      {selectedMeal.imageUrl && (
+                        <div className="flex justify-center mb-4">
+                          <img
+                            src={selectedMeal.imageUrl}
+                            alt={selectedMeal.mealType}
+                            className="h-30 rounded-md object-cover"
+                          />
+                        </div>
+                      )}
+
+                      <div>
+                        <div className="grid gap-4">
+                          <h5 className="mb-2">Informações Nutricionais</h5>
+                          <div className="flex justify-between items-center">
+                            <h6>Consumir: ({selectedMeal.consumeYield.toFixed(1)}) Porções</h6>
+                            <h6>Você vai consumir {((selectedMeal.calories / selectedMeal.yield) * selectedMeal.consumeYield).toFixed()} Kcal - por refeição</h6>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <small className="text-muted">Calorias</small>
+                            <p>{(selectedMeal.calories).toFixed(0)} kcal</p>
+                            <p>{((selectedMeal.calories / selectedMeal.yield) * selectedMeal.consumeYield).toFixed()} Kcal</p>
+                          </div>
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <small className="text-muted">Calorias por porção (refeição)</small>
+                            <p>{(selectedMeal.calories / selectedMeal.yield).toFixed(0)} kcal</p>
+                            <p>{selectedMeal.yield.toFixed(0)} - Porções</p>
+                          </div>
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <small className="text-muted">Proteínas</small>
+                            <p>{selectedMeal.protein.toFixed(1)}g</p>
+                          </div>
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <small className="text-muted">Carboidratos</small>
+                            <p>{selectedMeal.carbohydrate.toFixed(1)}g</p>
+                          </div>
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <small className="text-muted">Gorduras</small>
+                            <p>{selectedMeal.fat.toFixed(1)}g</p>
+                          </div>
+                          <div className="bg-gray-50 p-3 rounded-lg">
+                            <small className="text-muted">Fibras</small>
+                            <p>{selectedMeal.fiber.toFixed(1)}g</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {selectedMeal.prepareInstructions && (
+                        <div>
+                          <h5 className="mb-2">Modo de Preparo</h5>
+                          <p className="whitespace-pre-line">
+                            {selectedMeal.prepareInstructions}
+                          </p>
+                        </div>
+                      )}
+
+                      {selectedMeal.urlRecipe && (
+                        <div>
+                          <h5 className="mb-2">Receita Completa</h5>
+                          <a
+                            href={selectedMeal.urlRecipe}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary"
+                          >
+                            <p>Clique aqui para ver a receita completa</p>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border p-4 bg-gray-50">
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setOpenModal(false)}
+                      className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                      Fechar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => selectedMeal && markAsCompleted(selectedMeal)}
+                      className="inline-flex justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600"
+                    >
+                      Marcar como concluído
+                    </button>
                   </div>
                 </div>
               </div>
-
-              {selectedMeal.prepareInstructions && (
-                <div>
-                  <h5 className="mb-2">Modo de Preparo</h5>
-                  <p className="whitespace-pre-line">
-                    {selectedMeal.prepareInstructions}
-                  </p>
-                </div>
-              )}
-
-              {selectedMeal.urlRecipe && (
-                <div>
-                  <h5 className="mb-2">Receita Completa</h5>
-                  <a
-                    href={selectedMeal.urlRecipe}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary"
-                  >
-                    <p>Clique aqui para ver a receita completa</p>
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setOpenModal(false)}
-            className="mr-2 color: bg-red-500"
-          >
-            Fechar
-          </Button>
-          <Button className="color: bg-green-400"
-            variant="success"
-            onClick={() => selectedMeal && markAsCompleted(selectedMeal)}
-          >
-            Marcar como concluído
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
 
 
 
       {/* MODAL ADICIONAR REFEIÇÃO */}
-      <Modal show={showAddMealModal} onHide={() => setShowAddMealModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Adicionar Refeição Manual</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Refeição</label>
-              <input
-                type="text"
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                value={newMeal.name}
-                onChange={(e) => setNewMeal({ ...newMeal, name: e.target.value })}
-                placeholder="Ex: Café da manhã saudável"
-              />
-            </div>
+      <Dialog open={showAddMealModal} onClose={() => setShowAddMealModal(false)} className="relative z-50">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Calorias (kcal)</label>
-                <input
-                  type="number"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  value={newMeal.calories}
-                  onChange={(e) => setNewMeal({ ...newMeal, calories: e.target.value })}
-                  placeholder="Ex: 350"
-                />
-              </div>
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+            >
+              <div className="flex flex-col h-[80vh]">
+                <div className="flex justify-between items-center p-4 border">
+                  <DialogTitle as="h3" className="text-lg font-semibold text-gray-900">
+                    Adicionar Refeição Manual
+                  </DialogTitle>
+                  <button
+                    onClick={() => setShowAddMealModal(false)}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <span className="sr-only">Fechar</span>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Proteínas (g)</label>
-                <input
-                  type="number"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  value={newMeal.protein}
-                  onChange={(e) => setNewMeal({ ...newMeal, protein: e.target.value })}
-                  placeholder="Ex: 20"
-                />
-              </div>
+                <div className="flex-1 overflow-y-auto p-4">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Refeição</label>
+                      <input
+                        type="text"
+                        className="w-full p-2 border border-gray-300 rounded-lg"
+                        value={newMeal.name}
+                        onChange={(e) => setNewMeal({ ...newMeal, name: e.target.value })}
+                        placeholder="Ex: Café da manhã saudável"
+                      />
+                    </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Carboidratos (g)</label>
-                <input
-                  type="number"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  value={newMeal.carbohydrate}
-                  onChange={(e) => setNewMeal({ ...newMeal, carbohydrate: e.target.value })}
-                  placeholder="Ex: 45"
-                />
-              </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Calorias (kcal)</label>
+                        <input
+                          type="number"
+                          className="w-full p-2 border border-gray-300 rounded-lg"
+                          value={newMeal.calories}
+                          onChange={(e) => setNewMeal({ ...newMeal, calories: e.target.value })}
+                          placeholder="Ex: 350"
+                        />
+                      </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Gorduras (g)</label>
-                <input
-                  type="number"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  value={newMeal.fat}
-                  onChange={(e) => setNewMeal({ ...newMeal, fat: e.target.value })}
-                  placeholder="Ex: 10"
-                />
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Proteínas (g)</label>
+                        <input
+                          type="number"
+                          className="w-full p-2 border border-gray-300 rounded-lg"
+                          value={newMeal.protein}
+                          onChange={(e) => setNewMeal({ ...newMeal, protein: e.target.value })}
+                          placeholder="Ex: 20"
+                        />
+                      </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fibras (g)</label>
-                <input
-                  type="number"
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  value={newMeal.fiber}
-                  onChange={(e) => setNewMeal({ ...newMeal, fiber: e.target.value })}
-                  placeholder="Ex: 5"
-                />
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Carboidratos (g)</label>
+                        <input
+                          type="number"
+                          className="w-full p-2 border border-gray-300 rounded-lg"
+                          value={newMeal.carbohydrate}
+                          onChange={(e) => setNewMeal({ ...newMeal, carbohydrate: e.target.value })}
+                          placeholder="Ex: 45"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Gorduras (g)</label>
+                        <input
+                          type="number"
+                          className="w-full p-2 border border-gray-300 rounded-lg"
+                          value={newMeal.fat}
+                          onChange={(e) => setNewMeal({ ...newMeal, fat: e.target.value })}
+                          placeholder="Ex: 10"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Fibras (g)</label>
+                        <input
+                          type="number"
+                          className="w-full p-2 border border-gray-300 rounded-lg"
+                          value={newMeal.fiber}
+                          onChange={(e) => setNewMeal({ ...newMeal, fiber: e.target.value })}
+                          placeholder="Ex: 5"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border p-4 bg-gray-50">
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddMealModal(false)}
+                      className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleAddMeal}
+                      disabled={!newMeal.name || !newMeal.calories}
+                      className="inline-flex justify-center rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Adicionar Refeição
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            </DialogPanel>
           </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant=""
-            onClick={() => setShowAddMealModal(false)}
-            className="mr-2 bg-red-500"
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant=""
-            onClick={handleAddMeal}
-            disabled={!newMeal.name || !newMeal.calories}
-            className="mr-2 bg-green-500"
-          >
-            Adicionar Refeição
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import AuthenticatedRoute from "./components/AuthenticatedRoute"
 import NotAuthenticatedRoute from "./components/NotAuthenticatedRoute"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import MealPlanner from "./pages/MealPlanner"
 
 function App() {
   return (
@@ -55,8 +56,16 @@ function App() {
             </NotAuthenticatedRoute>
           }
         />
+        <Route
+          path="/meal-planner"
+          element={
+            <NotAuthenticatedRoute>
+              <MealPlanner />
+            </NotAuthenticatedRoute>
+          }
+        />
         
-        <Route path="/*" element={<Navigate to="/landing" replace />} />
+        {/* <Route path="/*" element={<Navigate to="/landing" replace />} /> */}
       </Routes>
       
     </BrowserRouter>
