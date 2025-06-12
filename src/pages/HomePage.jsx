@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import NutriPlanLogo from "../assets/nutrieplan-title-v2.svg";
+import NutriPlanLogoNoTitle from "../assets/nutrieplan-notitle-v2.svg";
+
 
 export default function Home() {
   const [selectedDay, setSelectedDay] = useState("");
@@ -29,8 +32,6 @@ export default function Home() {
   });
 
   const [open, setOpen] = useState(false);
-
-  const handleOpen = () => setOpen(!open);
 
 
   const navigate = useNavigate();
@@ -346,55 +347,99 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4 animate-fadeIn">
+      {/* Menu de opções */}
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition
-          className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+          className="fixed inset-0 bg-gray-500/75 transition-opacity duration-500 ease-in-out data-closed:opacity-0"
         />
 
-        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <DialogPanel
-              transition
-              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95"
-            >
-              {/* <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
-                    <ExclamationTriangleIcon aria-hidden="true" className="size-6 text-red-600" />
+        <div className="fixed inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+              <DialogPanel
+                transition
+                className="pointer-events-auto relative w-screen max-w-md transform transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700"
+              >
+                <TransitionChild>
+                  <div className="absolute top-0 left-0 -ml-8 flex pt-4 pr-2 duration-500 ease-in-out data-closed:opacity-0 sm:-ml-10 sm:pr-4">
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      className="relative rounded-md text-gray-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-hidden"
+                    >
+                      <span className="absolute -inset-2.5" />
+                      <span className="sr-only">Close panel</span>
+                      <XMarkIcon aria-hidden="true" className="size-6" />
+                    </button>
                   </div>
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <DialogTitle as="h3" className="text-base font-semibold text-gray-900">
-                      Deactivate account
-                    </DialogTitle>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to deactivate your account? All of your data will be permanently removed.
-                        This action cannot be undone.
-                      </p>
+                </TransitionChild>
+                <div className="flex h-full flex-col overflow-y-auto bg-white py-6 shadow-xl">
+                  <div className="px-4 sm:px-6">
+                    <DialogTitle className="text-2xl font-bold text-green-500">Menu de Opções</DialogTitle>
+                  </div>
+                  <div className="relative mt-6 flex-col px-4 sm:px-6 justify-between h-full">
+                    <div className="flex flex-col h-full justify-between">
+                      <div>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/buscar-refeicoes");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Buscar Refeições
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/modificar-refeicoes");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Modificar Refeições
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/meal-planner");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Criar Plano Alimentar
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/configuracoes");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Configurações
+                        </button>
+                      </div>
+                      <div>
+
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            localStorage.removeItem("token");
+                            navigate("/auth/login");
+                          }}
+                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 text-red-500 transition-colors"
+                        >
+                          Sair
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto"
-                >
-                  Deactivate
-                </button>
-                <button
-                  type="button"
-                  data-autofocus
-                  onClick={() => setOpen(false)}
-                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                >
-                  Cancel
-                </button>
-              </div> */}
-              <h1>teste</h1>
-            </DialogPanel>
+              </DialogPanel>
+            </div>
           </div>
         </div>
       </Dialog>
@@ -412,20 +457,20 @@ export default function Home() {
 
         {/* Cabeçalho */}
         <header className="flex justify-between items-center mb-8">
+
+          <div className="flex items-center ">
+            <Link to={"/"} className="transition-all duration-300 hover:scale-110">
+              <img src={NutriPlanLogoNoTitle} alt="Nutri&Plan Logo" className="h-15 w-auto" />
+            </Link>
+          </div>
           <button
-            onClick={handleOpen}
+            onClick={() => setOpen(true)}
             className="p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <Link
-            to="/auth/logout"
-            className="text-sm text-green-600 hover:text-green-800 transition-colors"
-          >
-            Sair
-          </Link>
         </header>
 
 
@@ -597,8 +642,17 @@ export default function Home() {
                             </span>
                           </div>
                           {meal.prepareInstructions && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                              {meal.prepareInstructions}
+                            <p className="text-pretty text-gray-600 mt-1 line-clamp-2">
+                              {/* name: translateMealType(meal.mealType),
+                              calories: (meal.calories / meal.yield) * meal.consumeYield,
+                              carbohydrate: (meal.carbohydrate / meal.yield) * meal.consumeYield,
+                              protein: (meal.protein / meal.yield) * meal.consumeYield,
+                              fat: (meal.fat / meal.yield) * meal.consumeYield,
+                              fiber: (meal.fiber / meal.yield) * meal.consumeYield,
+                              consumeYield: meal.consumeYield */}
+                              {/* Proteinas: {((meal.protein / meal.yield) * meal.consumeYield).toFixed()} (g)
+                              Gorduras: {((meal.fat / meal.yield) * meal.consumeYield).toFixed()} (g)  */}
+                              Ver instruções de preparo
                             </p>
                           )}
                         </div>
@@ -783,7 +837,7 @@ export default function Home() {
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded-lg"
                         value={newMeal.name}
-                        onChange={(e) => setNewMeal({ ...newMeal, name: e.target.value})}
+                        onChange={(e) => setNewMeal({ ...newMeal, name: e.target.value })}
                         placeholder="Ex: Café da manhã saudável"
                       />
                     </div>
