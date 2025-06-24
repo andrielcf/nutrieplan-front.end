@@ -57,16 +57,16 @@ const mockData = {
             "meals": [
                 {
                     "mealType": "Breakfast",
-                    "uriEdamam": "1",
-                    "imageUrl": "1",
-                    "urlRecipe": "1",
-                    "calories": 1,
-                    "carbohydrate": 1,
-                    "protein": 1,
-                    "fat": 1,
-                    "fiber": 1,
-                    "yield": 1,
-                    "prepareInstructions": "1"
+                    "uriEdamam": "RANDOM",
+                    "imageUrl": "RANDOM",
+                    "urlRecipe": "RANDOM",
+                    "calories": 99999999,
+                    "carbohydrate": 999999,
+                    "protein": 9999999,
+                    "fat": 999999,
+                    "fiber": 99999,
+                    "yield": 9999999,
+                    "prepareInstructions": "99999999"
                 },
                 {
                     "mealType": "Lunch/dinner",
@@ -534,7 +534,6 @@ export default function MealPlanner() {
             );
 
             toast.success("Plano alimentar criado com sucesso!");
-            console.log(response.data);
             return response.data;
         } catch (error) {
             toast.error("Erro ao criar plano alimentar");
@@ -636,7 +635,6 @@ export default function MealPlanner() {
 
         // Monta objeto final
         // const finalPayload = { plans: mealPlan };
-        console.log(mealPlan);
         const finalPayload = { plans: mealPlan };
         return finalPayload;
     };
@@ -649,7 +647,6 @@ export default function MealPlanner() {
             const recipeAssigned = extractAllRecipeUris(responseMealPlan);
             const responseURIs = await fetchRecipesByUris(recipeAssigned);
             const formatMeal = await buildMealPlanToBackend(responseURIs);
-            console.log(formatMeal);
 
             setGeneratedPlan(formatMeal);
             setShowPreview(true);
@@ -680,7 +677,6 @@ export default function MealPlanner() {
         setLoading(true)
         // setError("")
 
-        console.log(formatMeal.plans);
         try {
 
             // Obter o token do localStorage
@@ -747,89 +743,6 @@ export default function MealPlanner() {
             )}
         </div>
     );
-
-    // const PreviewMealPlan = ({ plan, onConfirm, onCancel }) => {
-    //     const daysTranslation = {
-    //         TUESDAY: "Terça-feira",
-    //         WEDNESDAY: "Quarta-feira",
-    //         THURSDAY: "Quinta-feira",
-    //         FRIDAY: "Sexta-feira",
-    //         SATURDAY: "Sábado",
-    //         SUNDAY: "Domingo"
-    //     };
-
-    //     const mealTranslation = {
-    //         Breakfast: "Café da Manhã",
-    //         Lunch: "Almoço",
-    //         Dinner: "Jantar"
-    //     };
-
-    //     return (
-    //         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    //             <div className="bg-white rounded-xl p-6 max-w-4xl max-h-[90vh] overflow-y-auto">
-    //                 <h2 className="text-2xl font-bold mb-6 text-center text-green-600">Pré-visualização do Plano Alimentar</h2>
-
-    //                 {plan.plans.map((dayPlan) => (
-    //                     <div key={dayPlan.dayOfWeek} className="mb-8 border-b pb-6 last:border-b-0">
-    //                         <h3 className="text-xl font-bold mb-4 text-gray-800">
-    //                             {daysTranslation[dayPlan.dayOfWeek] || dayPlan.dayOfWeek}
-    //                         </h3>
-
-    //                         <div className="grid gap-6">
-    //                             {dayPlan.meals.map((meal, index) => (
-    //                                 <div key={index} className="bg-gray-50 p-4 rounded-lg">
-    //                                     <h4 className="font-semibold text-green-700 mb-2">
-    //                                         {mealTranslation[meal.mealType] || meal.mealType}
-    //                                     </h4>
-    //                                     <div className="flex flex-col sm:flex-row gap-4">
-    //                                         {meal.imageUrl && (
-    //                                             <img
-    //                                                 src={meal.imageUrl}
-    //                                                 alt={meal.mealType}
-    //                                                 className="w-32 h-32 object-cover rounded-lg"
-    //                                             />
-    //                                         )}
-    //                                         <div className="flex-1">
-    //                                             <p className="text-gray-700 mb-2">
-    //                                                 <span className="font-medium">Calorias:</span> {Math.round(meal.calories)} kcal
-    //                                             </p>
-    //                                             <p className="text-gray-700 mb-2">
-    //                                                 <span className="font-medium">Porções:</span> {meal.yield}
-    //                                             </p>
-    //                                             <a
-    //                                                 href={meal.urlRecipe}
-    //                                                 target="_blank"
-    //                                                 rel="noopener noreferrer"
-    //                                                 className="text-green-600 hover:underline"
-    //                                             >
-    //                                                 Ver receita completa
-    //                                             </a>
-    //                                         </div>
-    //                                     </div>
-    //                                 </div>
-    //                             ))}
-    //                         </div>
-    //                     </div>
-    //                 ))}
-
-    //                 <div className="flex justify-end gap-4 mt-6">
-    //                     <button
-    //                         onClick={onCancel}
-    //                         className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
-    //                     >
-    //                         Voltar para editar
-    //                     </button>
-    //                     <button
-    //                         onClick={onConfirm}
-    //                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-    //                     >
-    //                         Confirmar e Salvar Plano
-    //                     </button>
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     );
-    // };
     const PreviewMealPlan = ({ plan, onConfirm, onCancel }) => {
         const daysTranslation = {
             MONDAY: "Segunda-feira",
@@ -841,10 +754,26 @@ export default function MealPlanner() {
             SUNDAY: "Domingo"
         };
 
-        const mealTranslation = {
-            Breakfast: "Café da Manhã",
-            Lunch: "Almoço",
-            Dinner: "Jantar"
+        const mealListName = ["Café da Manhã", "Almoço", "Jantar"];
+        let convertMealName = false; // Deve ser let para permitir reatribuição
+
+        const convertMealsNames = (mealType) => {
+
+            if (mealType === "Breakfast") {
+                return mealListName[0]; // Café da Manhã
+            }
+
+            if (mealType === "Lunch/dinner") {
+                if (!convertMealName) {
+                    convertMealName = true;
+                    return mealListName[1];
+                } else {
+                    convertMealName = false;
+                    return mealListName[2];
+                }
+            }
+
+            return mealType;
         };
 
         return (
@@ -887,7 +816,7 @@ export default function MealPlanner() {
                                                 {dayPlan.meals.map((meal, index) => (
                                                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
                                                         <h4 className="font-semibold text-green-700 mb-2">
-                                                            {mealTranslation[meal.mealType] || meal.mealType}
+                                                            {convertMealsNames(meal.mealType)} {meal.mealType}
                                                         </h4>
                                                         <div className="flex flex-col sm:flex-row gap-4">
                                                             {meal.imageUrl && (
@@ -972,7 +901,7 @@ export default function MealPlanner() {
 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4 animate-fadeIn">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4">
             {/* Modal de Menu */}
             <Dialog open={open} onClose={setOpen} className="relative z-10">
                 <DialogBackdrop
@@ -1008,10 +937,13 @@ export default function MealPlanner() {
                                         <div className="flex flex-col h-full justify-between">
                                             <div>
                                                 <button
-                                                    onClick={() => setOpen(false)}
+                                                    onClick={() => {
+                                                        setOpen(false);
+                                                        navigate("/");
+                                                    }}
                                                     className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
                                                 >
-                                                    Voltar para Home
+                                                    Página de Refeições
                                                 </button>
                                             </div>
                                         </div>
@@ -1023,10 +955,10 @@ export default function MealPlanner() {
                 </div>
             </Dialog>
 
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto animate-fadeIn">
                 {/* Cabeçalho */}
                 <header className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">Criar Plano Alimentar</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">Recriar Refeições</h1>
                     <button
                         onClick={() => setOpen(true)}
                         className="p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
@@ -1053,22 +985,12 @@ export default function MealPlanner() {
                 {renderMealSection('lunch', LUNCH_DISHES)}
                 {renderMealSection('dinner', DINNER_DISHES)}
 
-                {/* Botão de enviar */}
-                <button
-                    onClick={() => {
-                        setGeneratedPlan(mockData);
-                        setShowPreview(true);
-                        toast.success("Dados mockados carregados com sucesso!");
-                    }}
-                    className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-lg font-bold"
-                >
-                    Carregar Dados Mock
-                </button>
+
                 <button
                     onClick={mealPlanRebuild}
                     className="w-full mt-6 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:from-green-600 hover:to-teal-600 transition-all duration-300 shadow-lg font-bold"
                 >
-                    Criar Plano Alimentar
+                    Buscar Refeições
                 </button>
             </div>
             {showPreview && generatedPlan && (
