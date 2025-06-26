@@ -1,0 +1,354 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { mockRecipes } from "./mockRecipes";
+
+export default function MealRecipe() {
+    const [mealType, setMealType] = useState("");
+    const [userPreferences, setUserPreferences] = useState({
+        dietLabels: [],
+        healthLabels: [],
+        mealCalories: {
+            breakfast: 0,
+            lunch: 0,
+            dinner: 0
+        }
+    });
+    const [loading, setLoading] = useState(false);
+    const [recipes, setRecipes] = useState([]);
+    const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
+    const [consumeYield, setConsumeYield] = useState(1);
+
+    const calculateMealKcal = (total) => ({
+        breakfast: Math.round(total * 0.20),
+        lunch: Math.round(total * 0.38),
+        dinner: Math.round(total * 0.42),
+    });
+
+    useEffect(() => {
+        const fetchUserPreferences = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:8080/api/user/meal-details', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                const mealCalories = calculateMealKcal(response.data.tdee);
+
+                const dietLabels = typeof response.data.dietLabels === 'string'
+                    ? [response.data.dietLabels]
+                    : response.data.dietLabels || [];
+
+                setUserPreferences({
+                    dietLabels: dietLabels,
+                    healthLabels: response.data.healthLabels || [],
+                    mealCalories: mealCalories
+                });
+
+            } catch (err) {
+                toast.error("Erro ao carregar preferências");
+                console.error(err);
+            }
+        };
+
+        fetchUserPreferences();
+    }, []);
+
+    const dietLabelMap = {
+        "balanced": "balanced",
+        "high-protein": "high-protein",
+        "low-fat": "low-fat",
+        "low-carb": "low-carb"
+    };
+
+    const healthLabelMap = {
+        "vegan": "vegan",
+        "vegetarian": "vegetarian",
+        "gluten-free": "gluten-free",
+        "dairy-free": "dairy-free"
+    };
+
+    const searchRecipes = async () => {
+        if (!mealType) {
+            toast.warning("Selecione um tipo de refeição");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const calories = userPreferences.mealCalories[mealType.toLowerCase()];
+            const formattedMealType = mealType.charAt(0).toUpperCase() + mealType.slice(1).toLowerCase();
+
+            const baseUrl = "https://api.edamam.com/api/recipes/v2";
+            const fixedParams = "type=public&field=uri&field=image&field=url&field=yield&field=ingredientLines&field=calories&field=mealType&field=totalNutrients&app_id=1a407993&app_key=65891f3120111bb86c8f0c37bcdb74b4";
+
+            const dietParam = userPreferences.dietLabels.length > 0
+                ? `&diet=${userPreferences.dietLabels.map(diet => dietLabelMap[diet]).join(',')}`
+                : '';
+
+            const healthParams = userPreferences.healthLabels.length > 0
+                ? userPreferences.healthLabels.map(health => `&health=${healthLabelMap[health]}`).join('')
+                : '';
+
+            const fullUrl = `${baseUrl}?${fixedParams}${dietParam}${healthParams}&mealType=${formattedMealType}&calories=${Math.round(calories)}`;
+
+            // const response = await axios.get(fullUrl, {
+            //     headers: {
+            //         "accept": "application/json",
+            //         "Accept-Language": "en",
+            //         "Edamam-Account-User": "1a407993"
+            //     }
+            // });
+
+            console.log(mockRecipes);
+
+            // setRecipes(response.data.hits || []);
+            setRecipes(mockRecipes);
+        } catch (error) {
+            toast.error("Erro ao buscar receitas");
+            console.error("Error fetching recipes:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const openRecipeModal = (recipe) => {
+        setSelectedRecipe(recipe);
+        setConsumeYield(recipe.recipe.yield || 1);
+        setOpenModal(true);
+    };
+
+    const translateMealType = (mealType) => {
+        const types = {
+            "breakfast": "Café da Manhã",
+            "lunch": "Almoço",
+            "dinner": "Jantar"
+        };
+        return types[mealType] || mealType;
+    };
+
+    const getNutrientValue = (nutrients, nutrientKey) => {
+        return nutrients[nutrientKey]?.quantity || 0;
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4">
+            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Buscar Receitas</h1>
+
+                <div className="space-y-4 mb-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Tipo de Refeição
+                        </label>
+                        <select
+                            value={mealType}
+                            onChange={(e) => setMealType(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                        >
+                            <option value="">Selecione</option>
+                            <option value="Breakfast">Café da Manhã ({userPreferences.mealCalories.breakfast} kcal)</option>
+                            <option value="Lunch">Almoço ({userPreferences.mealCalories.lunch} kcal)</option>
+                            <option value="Dinner">Jantar ({userPreferences.mealCalories.dinner} kcal)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Preferências do Usuário
+                        </label>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                            <p className="text-gray-600">
+                                <span className="font-medium">Dieta:</span>{" "}
+                                {userPreferences.dietLabels.length > 0
+                                    ? userPreferences.dietLabels.join(", ")
+                                    : "Nenhuma preferência"}
+                            </p>
+                            <p className="text-gray-600 mt-1">
+                                <span className="font-medium">Restrições:</span>{" "}
+                                {userPreferences.healthLabels.length > 0
+                                    ? userPreferences.healthLabels.join(", ")
+                                    : "Nenhuma restrição"}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={searchRecipes}
+                        disabled={loading || !mealType}
+                        className={`w-full py-2 px-4 rounded-lg transition-all duration-300 ${!loading && mealType
+                            ? "bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600"
+                            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            }`}
+                    >
+                        {loading ? "Buscando..." : "Buscar Receitas"}
+                    </button>
+                </div>
+
+                {loading ? (
+                    <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {recipes.length > 0 ? (
+                            <>
+                                <h2 className="text-xl font-semibold text-gray-800">
+                                    Resultados ({recipes.length})
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {recipes.map((hit, index) => (
+                                        <div
+                                            key={index}
+                                            className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                                            onClick={() => openRecipeModal(hit)}
+                                        >
+                                            <div className="h-48 overflow-hidden">
+                                                <img
+                                                    src={hit.recipe.image}
+                                                    alt={hit.recipe.label}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="p-4">
+                                                <h3 className="font-medium text-gray-800 mb-2 line-clamp-2">
+                                                    {hit.recipe.label}
+                                                </h3>
+                                                <p className="text-sm text-gray-600 mb-2">
+                                                    {hit.recipe.calories.toFixed(0)} calorias
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {hit.recipe.mealType && hit.recipe.mealType[0] ?
+                                                        translateMealType(hit.recipe.mealType[0].toLowerCase()) :
+                                                        "Refeição"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                {mealType
+                                    ? "Nenhuma receita encontrada. Tente ajustar seus filtros."
+                                    : "Selecione um tipo de refeição para buscar receitas."}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Recipe Modal */}
+                <Dialog open={openModal} onClose={() => setOpenModal(false)} className="relative z-50">
+                    <DialogBackdrop
+                        className="fixed inset-0 bg-gray-500/75 transition-opacity"
+                    />
+
+                    <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                            <DialogPanel
+                                className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+                            >
+                                <div className="flex flex-col h-[80vh]">
+                                    <div className="flex justify-between items-center p-4 border">
+                                        <DialogTitle as="h3" className="text-lg font-semibold text-gray-900">
+                                            {selectedRecipe?.recipe.label}
+                                        </DialogTitle>
+                                        <button
+                                            onClick={() => setOpenModal(false)}
+                                            className="text-gray-400 hover:text-gray-500"
+                                        >
+                                            <span className="sr-only">Fechar</span>
+                                            <XMarkIcon className="h-6 w-6" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto p-4">
+                                        {selectedRecipe && (
+                                            <div className="space-y-6">
+                                                <div className="flex justify-center mb-4">
+                                                    <img
+                                                        src={selectedRecipe.recipe.image}
+                                                        alt={selectedRecipe.recipe.label}
+                                                        className="h-40 rounded-md object-cover"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <div className="grid gap-4">
+                                                        <h5 className="mb-2">Informações Nutricionais</h5>
+                                                        <div className="flex justify-between items-center">
+                                                            <h6>Porções: {selectedRecipe.recipe.yield}</h6>
+                                                            <h6>Calorias totais: {selectedRecipe.recipe.calories.toFixed(0)} kcal</h6>
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4 mt-4">
+                                                        <div className="bg-gray-50 p-3 rounded-lg">
+                                                            <small className="text-muted">Proteínas</small>
+                                                            <p>{getNutrientValue(selectedRecipe.recipe.totalNutrients, 'PROCNT').toFixed(1)}g</p>
+                                                        </div>
+                                                        <div className="bg-gray-50 p-3 rounded-lg">
+                                                            <small className="text-muted">Carboidratos</small>
+                                                            <p>{getNutrientValue(selectedRecipe.recipe.totalNutrients, 'CHOCDF').toFixed(1)}g</p>
+                                                        </div>
+                                                        <div className="bg-gray-50 p-3 rounded-lg">
+                                                            <small className="text-muted">Gorduras</small>
+                                                            <p>{getNutrientValue(selectedRecipe.recipe.totalNutrients, 'FAT').toFixed(1)}g</p>
+                                                        </div>
+                                                        <div className="bg-gray-50 p-3 rounded-lg">
+                                                            <small className="text-muted">Fibras</small>
+                                                            <p>{getNutrientValue(selectedRecipe.recipe.totalNutrients, 'FIBTG').toFixed(1)}g</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <h4 className="font-medium mb-2">Ingredientes:</h4>
+                                                    <ul className="list-disc pl-5 space-y-1">
+                                                        {selectedRecipe.recipe.ingredientLines.map((ingredient, i) => (
+                                                            <li key={i}>{ingredient}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                {selectedRecipe.recipe.url && (
+                                                    <div>
+                                                        <h5 className="mb-2">Receita Completa</h5>
+                                                        <a
+                                                            href={selectedRecipe.recipe.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-green-600 hover:text-green-800"
+                                                        >
+                                                            Clique aqui para ver a receita completa
+                                                        </a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="border p-4 bg-gray-50">
+                                        <div className="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setOpenModal(false)}
+                                                className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                                            >
+                                                Fechar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </DialogPanel>
+                        </div>
+                    </div>
+                </Dialog>
+            </div>
+        </div>
+    );
+}
