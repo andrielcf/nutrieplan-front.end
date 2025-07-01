@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { mockRecipes } from "./mockRecipes";
+import { Radio, Typography } from "@material-tailwind/react";
 
 export default function MealRecipe() {
     const [mealType, setMealType] = useState("");
@@ -21,6 +22,78 @@ export default function MealRecipe() {
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [consumeYield, setConsumeYield] = useState(1);
+    const [savedMeals, setSavedMeals] = useState([]);
+    const [selectedSavedMeal, setSelectedSavedMeal] = useState(null);
+    const getWeekDayName = (index) => {
+        const days = [
+            "Segunda-feira",
+            "Terça-feira",
+            "Quarta-feira",
+            "Quinta-feira",
+            "Sexta-feira",
+            "Sábado",
+            "Domingo"
+        ];
+        return days[index] || `Dia ${index + 1}`;
+    };
+
+    const replaceMeal = async () => {
+        if (!selectedRecipe || !selectedSavedMeal) {
+            toast.warning("Selecione uma receita e uma refeição salva para substituir");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const recipe = selectedRecipe.recipe;
+
+            const mealData = {
+                mealType: mealType,
+                uriEdamam: recipe.uri,
+                imageUrl: recipe.image,
+                urlRecipe: recipe.url,
+                calories: recipe.calories,
+                carbohydrate: getNutrientValue(recipe.totalNutrients, 'CHOCDF'),
+                protein: getNutrientValue(recipe.totalNutrients, 'PROCNT'),
+                fat: getNutrientValue(recipe.totalNutrients, 'FAT'),
+                fiber: getNutrientValue(recipe.totalNutrients, 'FIBTG'),
+                yield: recipe.yield,
+                prepareInstructions: recipe.ingredientLines.join('\n')
+            };
+
+            await axios.put(
+                `http://localhost:8080/api/mealrecipe/replace-meal/${selectedSavedMeal.id}`,
+                mealData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            toast.success("Refeição substituída com sucesso!");
+            setOpenModal(false);
+            fetchUserMeals(mealType);
+        } catch (error) {
+            toast.error("Erro ao substituir refeição");
+            console.error("Error replacing meal:", error);
+        }
+    };
+
+    const fetchUserMeals = async (type) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://localhost:8080/api/mealrecipe/meals/${type.toLowerCase()}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setSavedMeals(response.data);
+            setSelectedSavedMeal(null);
+        } catch (error) {
+            console.error("Error fetching saved meals:", error);
+        }
+    };
 
     const calculateMealKcal = (total) => ({
         breakfast: Math.round(total * 0.20),
@@ -81,6 +154,7 @@ export default function MealRecipe() {
 
         setLoading(true);
         try {
+
             const calories = userPreferences.mealCalories[mealType.toLowerCase()];
             const formattedMealType = mealType.charAt(0).toUpperCase() + mealType.slice(1).toLowerCase();
 
@@ -97,18 +171,19 @@ export default function MealRecipe() {
 
             const fullUrl = `${baseUrl}?${fixedParams}${dietParam}${healthParams}&mealType=${formattedMealType}&calories=${Math.round(calories)}`;
 
-            // const response = await axios.get(fullUrl, {
-            //     headers: {
-            //         "accept": "application/json",
-            //         "Accept-Language": "en",
-            //         "Edamam-Account-User": "1a407993"
-            //     }
-            // });
+            const response = await axios.get(fullUrl, {
+                headers: {
+                    "accept": "application/json",
+                    "Accept-Language": "en",
+                    "Edamam-Account-User": "1a407993"
+                }
+            });
 
-            console.log(mockRecipes);
+            // console.log(mockRecipes);
 
-            // setRecipes(response.data.hits || []);
-            setRecipes(mockRecipes);
+            setRecipes(response.data.hits || []);
+            await fetchUserMeals(mealType);
+            // setRecipes(mockRecipes);
         } catch (error) {
             toast.error("Erro ao buscar receitas");
             console.error("Error fetching recipes:", error);
@@ -189,6 +264,82 @@ export default function MealRecipe() {
                         {loading ? "Buscando..." : "Buscar Receitas"}
                     </button>
                 </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Selecione um dia da semana:
+                    </label>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                        {savedMeals.length > 0 ? (
+                            <div className="flex flex-col gap-4">
+                                {savedMeals.map((meal, index) => (
+                                    <div key={meal.id} className="border rounded-lg p-3">
+                                        <Radio
+                                            name="savedMeals"
+                                            color="green"
+                                            label={
+                                                <div className="">
+                                                    <Typography color="blue-gray" className="font-medium p-0">
+                                                        {getWeekDayName(index)}
+                                                    </Typography>
+                                                </div>
+                                            }
+                                            checked={selectedSavedMeal?.id === meal.id}
+                                            onChange={() => {
+                                                setSelectedSavedMeal(meal);
+                                            }}
+                                            containerProps={{
+                                                className: "-mt-5",
+                                            }}
+                                        />
+
+                                        {selectedSavedMeal?.id === meal.id && (
+                                            <div className="mt-3">
+                                                <div className="grid gap-4">
+                                                    <div className="flex justify-center items-center">
+                                                        <h6>Recomendação diária {((meal.calories / meal.yield) * meal.consumeYield).toFixed()} Kcal - por refeição</h6>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4 mt-2">
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <small className="text-muted">Calorias</small>
+                                                        <p>{(meal.calories).toFixed(0)} kcal</p>
+                                                        <p>{((meal.calories / meal.yield) * meal.consumeYield).toFixed()} Kcal</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <small className="text-muted">Calorias por porção (refeição)</small>
+                                                        <p>{(meal.calories / meal.yield).toFixed(0)} kcal</p>
+                                                        <p>{meal.yield.toFixed(0)} - Porções</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <small className="text-muted">Proteínas</small>
+                                                        <p>{meal.protein.toFixed(1)}g</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <small className="text-muted">Carboidratos</small>
+                                                        <p>{meal.carbohydrate.toFixed(1)}g</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <small className="text-muted">Gorduras</small>
+                                                        <p>{meal.fat.toFixed(1)}g</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <small className="text-muted">Fibras</small>
+                                                        <p>{meal.fiber.toFixed(1)}g</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <Typography variant="small" color="gray" className="font-normal">
+                                Nenhuma refeição salva encontrada.
+                            </Typography>
+                        )}
+                    </div>
+                </div>
+
 
                 {loading ? (
                     <div className="flex justify-center py-8">
@@ -245,9 +396,9 @@ export default function MealRecipe() {
                 {/* Recipe Modal */}
                 <Dialog open={openModal} onClose={() => setOpenModal(false)} className="relative z-50">
                     <DialogBackdrop
-                        className="fixed inset-0 bg-gray-500/75 transition-opacity"
+                        transition
+                        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
                     />
-
                     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                             <DialogPanel
@@ -266,6 +417,7 @@ export default function MealRecipe() {
                                             <XMarkIcon className="h-6 w-6" />
                                         </button>
                                     </div>
+
 
                                     <div className="flex-1 overflow-y-auto p-4">
                                         {selectedRecipe && (
@@ -341,6 +493,15 @@ export default function MealRecipe() {
                                             >
                                                 Fechar
                                             </button>
+                                            {selectedSavedMeal && (
+                                                <button
+                                                    type="button"
+                                                    onClick={replaceMeal}
+                                                    className="inline-flex justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                                                >
+                                                    Substituir
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

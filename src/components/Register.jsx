@@ -259,7 +259,7 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
 
         <div>
           <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
-            Gênero
+            Sexo
           </label>
           <select
             id="gender"
