@@ -385,7 +385,7 @@ export default function Home() {
                         <button
                           onClick={() => {
                             setOpen(false);
-                            navigate("/buscar-refeicoes");
+                            navigate("/meal-recipe");
                           }}
                           className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
                         >

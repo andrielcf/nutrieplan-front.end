@@ -7,6 +7,7 @@ import NotAuthenticatedRoute from "./components/NotAuthenticatedRoute"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import MealPlanner from "./pages/MealPlanner"
+import MealRecipe from "./pages/MealRecipe"
 
 function App() {
   return (
@@ -61,6 +62,14 @@ function App() {
           element={
             <NotAuthenticatedRoute>
               <MealPlanner />
+            </NotAuthenticatedRoute>
+          }
+        />
+        <Route
+          path="/meal-recipe"
+          element={
+            <NotAuthenticatedRoute>
+              <MealRecipe />
             </NotAuthenticatedRoute>
           }
         />
