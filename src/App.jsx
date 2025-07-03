@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import MealPlanner from "./pages/MealPlanner"
 import MealRecipe from "./pages/MealRecipe"
+import UserConfiguration from "./pages/UserConfiguration"
 
 function App() {
   return (
@@ -39,11 +40,7 @@ function App() {
             </AuthenticatedRoute>
           }
         />
-        {/* <Route path="/create-plan" element={
-          <AuthenticatedRoute>
-            <CreatePlan/>
-          </AuthenticatedRoute>
-        }></Route> */}
+        
         <Route path="/landing" element={
           <AuthenticatedRoute>
             <LandingPage/>
@@ -62,6 +59,14 @@ function App() {
           element={
             <NotAuthenticatedRoute>
               <MealPlanner />
+            </NotAuthenticatedRoute>
+          }
+        />
+        <Route
+          path="/user-configuration"
+          element={
+            <NotAuthenticatedRoute>
+              <UserConfiguration />
             </NotAuthenticatedRoute>
           }
         />

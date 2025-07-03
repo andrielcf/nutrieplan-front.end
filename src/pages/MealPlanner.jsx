@@ -533,10 +533,10 @@ export default function MealPlanner() {
                 }
             );
 
-            toast.success("Plano alimentar criado com sucesso!");
+            toast.success("Cardápios alimentar criado com sucesso!");
             return response.data;
         } catch (error) {
-            toast.error("Erro ao criar plano alimentar");
+            toast.error("Erro ao criar Cardápios alimentar");
             console.error(error);
         }
     };
@@ -651,7 +651,7 @@ export default function MealPlanner() {
             setGeneratedPlan(formatMeal);
             setShowPreview(true);
         } catch (error) {
-            toast.error("Erro ao gerar plano alimentar");
+            toast.error("Erro ao gerar Cardápios alimentar");
             console.error(error);
         } finally {
             setLoading(false);
@@ -662,11 +662,11 @@ export default function MealPlanner() {
         try {
             setLoading(true);
             await handleSubmit(generatedPlan);
-            toast.success("Plano alimentar salvo com sucesso!");
+            toast.success("Cardápios alimentar salvo com sucesso!");
             setShowPreview(false);
             // Opcional: redirecionar ou limpar o formulário
         } catch (error) {
-            toast.error("Erro ao salvar plano alimentar");
+            toast.error("Erro ao salvar Cardápios alimentar");
             console.error(error);
         } finally {
             setLoading(false);
@@ -792,7 +792,7 @@ export default function MealPlanner() {
                             <div className="flex flex-col h-[80vh]">
                                 <div className="flex justify-between items-center p-4 border-b">
                                     <DialogTitle as="h3" className="text-lg font-semibold text-gray-900">
-                                        Pré-visualização do Plano Alimentar
+                                        Pré-visualização do Cardápios Alimentar
                                     </DialogTitle>
                                     <button
                                         onClick={onCancel}
@@ -887,7 +887,7 @@ export default function MealPlanner() {
                                             onClick={onConfirm}
                                             className="inline-flex justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
                                         >
-                                            Confirmar e Salvar Plano
+                                            Confirmar e Salvar Cardápios
                                         </button>
                                     </div>
                                 </div>

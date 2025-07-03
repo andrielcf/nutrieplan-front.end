@@ -395,31 +395,21 @@ export default function Home() {
                         <button
                           onClick={() => {
                             setOpen(false);
-                            navigate("/modificar-refeicoes");
-                          }}
-                          className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
-                          Modificar Refeições
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setOpen(false);
                             navigate("/meal-planner");
                           }}
                           className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          Criar Plano Alimentar
+                          Modificar Cardápios
                         </button>
 
                         <button
                           onClick={() => {
                             setOpen(false);
-                            navigate("/configuracoes");
+                            navigate("/user-configuration");
                           }}
                           className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          Configurações
+                          Configurações do Usuário
                         </button>
                       </div>
                       <div>
