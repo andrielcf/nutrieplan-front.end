@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { mockRecipes } from "./mockRecipes";
 import { Radio, Typography } from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
 
 export default function MealRecipe() {
     const [mealType, setMealType] = useState("");
@@ -211,11 +212,105 @@ export default function MealRecipe() {
         return nutrients[nutrientKey]?.quantity || 0;
     };
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4">
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Buscar Receitas</h1>
+    const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
 
+    const translateLabels = (label) => {
+        const dietTranslations = {
+            "balanced": "Balanceado",
+            "high-protein": "Mais Proteico",
+            "low-fat": "Baixo em Gordura",
+            "low-carb": "Baixo em Carboidratos"
+        };
+
+        const healthTranslations = {
+            "vegan": "Vegano(a)",
+            "vegetarian": "Vegetariano(a)",
+            "gluten-free": "Sem glúten",
+            "dairy-free": "Sem lactose"
+        };
+
+        // Verifica primeiro nos rótulos de dieta
+        if (dietTranslations[label.toLowerCase()]) {
+            return dietTranslations[label.toLowerCase()];
+        }
+
+        // Depois verifica nos rótulos de saúde
+        if (healthTranslations[label.toLowerCase()]) {
+            return healthTranslations[label.toLowerCase()];
+        }
+
+        // Se não encontrar tradução, retorna o original
+        return label;
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4 animate-fadeIn">
+            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div className="flex justify-between">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-6">Buscar Receitas</h1>
+                    <button
+                        onClick={() => setOpen(true)}
+                        className="p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    {/* Modal de Menu */}
+                    <Dialog open={open} onClose={setOpen} className="relative z-10">
+                        <DialogBackdrop
+                            transition
+                            className="fixed inset-0 bg-gray-500/75 transition-opacity duration-500 ease-in-out data-closed:opacity-0"
+                        />
+
+                        <div className="fixed inset-0 overflow-hidden">
+                            <div className="absolute inset-0 overflow-hidden">
+                                <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                                    <DialogPanel
+                                        transition
+                                        className="pointer-events-auto relative w-screen max-w-md transform transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700"
+                                    >
+                                        <TransitionChild>
+                                            <div className="absolute top-0 left-0 -ml-8 flex pt-4 pr-2 duration-500 ease-in-out data-closed:opacity-0 sm:-ml-10 sm:pr-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpen(false)}
+                                                    className="relative rounded-md text-gray-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-hidden"
+                                                >
+                                                    <span className="absolute -inset-2.5" />
+                                                    <span className="sr-only">Close panel</span>
+                                                    <XMarkIcon aria-hidden="true" className="size-6" />
+                                                </button>
+                                            </div>
+                                        </TransitionChild>
+                                        <div className="flex h-full flex-col overflow-y-auto bg-white py-6 shadow-xl">
+                                            <div className="px-4 sm:px-6">
+                                                <DialogTitle className="text-2xl font-bold text-green-500">Menu de Opções</DialogTitle>
+                                            </div>
+                                            <div className="relative mt-6 flex-col px-4 sm:px-6 justify-between h-full">
+                                                <div className="flex flex-col h-full justify-between">
+                                                    <div>
+                                                        <button
+                                                            onClick={() => {
+                                                                setOpen(false);
+                                                                navigate("/");
+                                                            }}
+                                                            className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                                                        >
+                                                            Página de Refeições
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </DialogPanel>
+                                </div>
+                            </div>
+                        </div>
+                    </Dialog>
+
+                </div>
                 <div className="space-y-4 mb-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -238,7 +333,7 @@ export default function MealRecipe() {
                             Preferências do Usuário
                         </label>
                         <div className="bg-gray-50 p-3 rounded-lg">
-                            <p className="text-gray-600">
+                            {/* <p className="text-gray-600">
                                 <span className="font-medium">Dieta:</span>{" "}
                                 {userPreferences.dietLabels.length > 0
                                     ? userPreferences.dietLabels.join(", ")
@@ -248,6 +343,18 @@ export default function MealRecipe() {
                                 <span className="font-medium">Restrições:</span>{" "}
                                 {userPreferences.healthLabels.length > 0
                                     ? userPreferences.healthLabels.join(", ")
+                                    : "Nenhuma restrição"}
+                            </p> */}
+                            <p className="text-gray-600">
+                                <span className="font-medium">Tipo de Cardápio:</span>{" "}
+                                {userPreferences.dietLabels.length > 0
+                                    ? userPreferences.dietLabels.map(label => translateLabels(label)).join(", ")
+                                    : "Nenhuma preferência"}
+                            </p>
+                            <p className="text-gray-600 mt-1">
+                                <span className="font-medium">Restrições:</span>{" "}
+                                {userPreferences.healthLabels.length > 0
+                                    ? userPreferences.healthLabels.map(label => translateLabels(label)).join(", ")
                                     : "Nenhuma restrição"}
                             </p>
                         </div>
@@ -296,7 +403,7 @@ export default function MealRecipe() {
                                             <div className="mt-3">
                                                 <div className="grid gap-4">
                                                     <div className="flex justify-center items-center">
-                                                        <h6>Recomendação diária {((meal.calories / meal.yield) * meal.consumeYield).toFixed()} Kcal - por refeição</h6>
+                                                        <h6>{((meal.calories / meal.yield) * meal.consumeYield).toFixed()} Kcal - por refeição</h6>
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4 mt-2">
@@ -458,14 +565,14 @@ export default function MealRecipe() {
                                                     </div>
                                                 </div>
 
-                                                <div>
+                                                {/* <div>
                                                     <h4 className="font-medium mb-2">Ingredientes:</h4>
                                                     <ul className="list-disc pl-5 space-y-1">
                                                         {selectedRecipe.recipe.ingredientLines.map((ingredient, i) => (
                                                             <li key={i}>{ingredient}</li>
                                                         ))}
                                                     </ul>
-                                                </div>
+                                                </div> */}
 
                                                 {selectedRecipe.recipe.url && (
                                                     <div>
