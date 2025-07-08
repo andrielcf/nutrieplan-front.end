@@ -816,7 +816,7 @@ export default function MealPlanner() {
                                                 {dayPlan.meals.map((meal, index) => (
                                                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
                                                         <h4 className="font-semibold text-green-700 mb-2">
-                                                            {convertMealsNames(meal.mealType)} {meal.mealType}
+                                                            {convertMealsNames(meal.mealType)}
                                                         </h4>
                                                         <div className="flex flex-col sm:flex-row gap-4">
                                                             {meal.imageUrl && (
@@ -955,9 +955,9 @@ export default function MealPlanner() {
                 </div>
             </Dialog>
 
-            <div className="max-w-3xl mx-auto animate-fadeIn">
+            <div className="max-w-3xl mx-auto mb-8 p-6 bg-white rounded-xl shadow-xl animate-fadeIn">
                 {/* Cabeçalho */}
-                <header className="flex justify-between items-center mb-8">
+                <header className="flex justify-between items-center mb-8 p-6 bg-white rounded-xl shadow-xl">
                     <h1 className="text-2xl font-bold text-gray-800">Recriar Refeições</h1>
                     <button
                         onClick={() => setOpen(true)}

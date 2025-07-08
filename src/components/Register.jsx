@@ -176,15 +176,15 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
   ]
 
   const dietLabels = [
-    { id: 1, label: "Balanceada (Info)" },
-    { id: 2, label: "High-Protein (Info)" },
-    { id: 3, label: "Low-Fat (Info)" },
-    { id: 4, label: "Low-Carb (Info)" }
+    { id: 1, label: "Balanceado (Info)" },
+    { id: 2, label: "Mais Proteico (Info)" },
+    { id: 3, label: "Baixo em Gordura (Info)" },
+    { id: 4, label: "Baixo em Carboidrato (Info)" }
   ]
 
   const healthLabels = [
-    { id: 1, label: "Vegana", name: "vegan" },
-    { id: 2, label: "Vegetariana", name: "vegetarian" },
+    { id: 1, label: "Vegano(a)", name: "vegan" },
+    { id: 2, label: "Vegetariano(a)", name: "vegetarian" },
     { id: 3, label: "Sem glúten", name: "gluten-free" },
     { id: 4, label: "Sem lactose", name: "lactose-free" }
   ]
@@ -358,7 +358,7 @@ const ProfileInfoStep = ({ formData, setFormData, onNext, onBack }) => {
 
       <div>
         <label htmlFor="dietLabel" className="block text-sm font-medium text-gray-700 mb-1">
-          Tipo de Dieta
+          Tipo de Cardapio
         </label>
         <select
           id="dietLabel"
@@ -435,15 +435,15 @@ const ReviewStep = ({ formData, onBack, onSubmit, loading }) => {
   }
 
   const dietLabelLabels = {
-    1: "Balanceada",
-    2: "High-Protein",
-    3: "Low-Fat",
-    4: "Low-Carb"
+    1: "Balanceado",
+    2: "Mais Proteico",
+    3: "Baixo em Gordura",
+    4: "Baixo em Carboidrato"
   }
 
   const healthLabelLabels = {
-    1: "Vegana",
-    2: "Vegetariana",
+    1: "Vegano(a)",
+    2: "Vegetariano(a)",
     3: "Sem glúten",
     4: "Sem lactose",
   }
@@ -470,7 +470,7 @@ const ReviewStep = ({ formData, onBack, onSubmit, loading }) => {
             <p className="text-gray-600 mt-2">Restrições:</p>
             <ul className="list-disc list-inside">
               {formData.profile.healthLabelsIds.map(id => (
-                <li key={id}>{healthLabelLabels[id]} {id}</li>
+                <li key={id}>{healthLabelLabels[id]}</li>
               ))}
             </ul>
           </>

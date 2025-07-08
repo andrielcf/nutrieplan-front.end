@@ -215,6 +215,35 @@ export default function MealRecipe() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
+    const translateLabels = (label) => {
+        const dietTranslations = {
+            "balanced": "Balanceado",
+            "high-protein": "Mais Proteico",
+            "low-fat": "Baixo em Gordura",
+            "low-carb": "Baixo em Carboidratos"
+        };
+
+        const healthTranslations = {
+            "vegan": "Vegano(a)",
+            "vegetarian": "Vegetariano(a)",
+            "gluten-free": "Sem glúten",
+            "dairy-free": "Sem lactose"
+        };
+
+        // Verifica primeiro nos rótulos de dieta
+        if (dietTranslations[label.toLowerCase()]) {
+            return dietTranslations[label.toLowerCase()];
+        }
+
+        // Depois verifica nos rótulos de saúde
+        if (healthTranslations[label.toLowerCase()]) {
+            return healthTranslations[label.toLowerCase()];
+        }
+
+        // Se não encontrar tradução, retorna o original
+        return label;
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 p-4 animate-fadeIn">
             <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
@@ -304,7 +333,7 @@ export default function MealRecipe() {
                             Preferências do Usuário
                         </label>
                         <div className="bg-gray-50 p-3 rounded-lg">
-                            <p className="text-gray-600">
+                            {/* <p className="text-gray-600">
                                 <span className="font-medium">Dieta:</span>{" "}
                                 {userPreferences.dietLabels.length > 0
                                     ? userPreferences.dietLabels.join(", ")
@@ -314,6 +343,18 @@ export default function MealRecipe() {
                                 <span className="font-medium">Restrições:</span>{" "}
                                 {userPreferences.healthLabels.length > 0
                                     ? userPreferences.healthLabels.join(", ")
+                                    : "Nenhuma restrição"}
+                            </p> */}
+                            <p className="text-gray-600">
+                                <span className="font-medium">Tipo de Cardápio:</span>{" "}
+                                {userPreferences.dietLabels.length > 0
+                                    ? userPreferences.dietLabels.map(label => translateLabels(label)).join(", ")
+                                    : "Nenhuma preferência"}
+                            </p>
+                            <p className="text-gray-600 mt-1">
+                                <span className="font-medium">Restrições:</span>{" "}
+                                {userPreferences.healthLabels.length > 0
+                                    ? userPreferences.healthLabels.map(label => translateLabels(label)).join(", ")
                                     : "Nenhuma restrição"}
                             </p>
                         </div>
@@ -362,7 +403,7 @@ export default function MealRecipe() {
                                             <div className="mt-3">
                                                 <div className="grid gap-4">
                                                     <div className="flex justify-center items-center">
-                                                        <h6>Recomendação diária {((meal.calories / meal.yield) * meal.consumeYield).toFixed()} Kcal - por refeição</h6>
+                                                        <h6>{((meal.calories / meal.yield) * meal.consumeYield).toFixed()} Kcal - por refeição</h6>
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4 mt-2">
@@ -524,14 +565,14 @@ export default function MealRecipe() {
                                                     </div>
                                                 </div>
 
-                                                <div>
+                                                {/* <div>
                                                     <h4 className="font-medium mb-2">Ingredientes:</h4>
                                                     <ul className="list-disc pl-5 space-y-1">
                                                         {selectedRecipe.recipe.ingredientLines.map((ingredient, i) => (
                                                             <li key={i}>{ingredient}</li>
                                                         ))}
                                                     </ul>
-                                                </div>
+                                                </div> */}
 
                                                 {selectedRecipe.recipe.url && (
                                                     <div>
