@@ -6,6 +6,8 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } fro
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import NutriPlanLogo from "../assets/nutrieplan-title-v2.svg";
 import NutriPlanLogoNoTitle from "../assets/nutrieplan-notitle-v2.svg";
+import CircularProgress from '@mui/joy/CircularProgress';
+import WarningIcon from '@mui/icons-material/Warning';
 
 
 export default function Home() {
@@ -465,7 +467,7 @@ export default function Home() {
 
 
         {/* Contador de calorias circular */}
-        <div className="flex justify-center mb-8">
+        {/* <div className="flex justify-center mb-8">
           <div className="relative w-48 h-48">
             <svg className="w-full h-full" viewBox="0 0 100 100">
               <circle
@@ -499,6 +501,37 @@ export default function Home() {
                 <span className="text-xs text-red-500 mt-1">Limite excedido!</span>
               )}
             </div>
+          </div>
+        </div> */}
+        <div className="flex justify-center mb-8">
+          <div className="relative">
+            <CircularProgress
+              size="lg"
+              determinate
+              value={progressPercentage}
+              color={isOverLimit ? "danger" : "success"}
+              thickness={10}
+              sx={{
+                '--CircularProgress-size': '180px',
+                '--CircularProgress-track-thickness': '8px',
+                '--CircularProgress-progress-thickness': '8px'
+              }}
+            >
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold text-gray-800">
+                  {caloriesConsumed.toFixed(0)}
+                </span>
+                <span className="text-sm text-gray-500">
+                  / {caloriesGoal} kcal
+                </span>
+                {isOverLimit && (
+                  <span className="text-xs text-red-500 mt-1 flex items-center">
+                    <WarningIcon fontSize="small" className="mr-1" />
+                    
+                  </span>
+                )}
+              </div>
+            </CircularProgress>
           </div>
         </div>
 

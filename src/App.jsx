@@ -9,6 +9,8 @@ import "react-toastify/dist/ReactToastify.css"
 import MealPlanner from "./pages/MealPlanner"
 import MealRecipe from "./pages/MealRecipe"
 import UserConfiguration from "./pages/UserConfiguration"
+import ForgotPassword from "./components/ForgotPassword"
+import ResetPassword from "./components/ResetPassword"
 
 function App() {
   return (
@@ -40,12 +42,22 @@ function App() {
             </AuthenticatedRoute>
           }
         />
-        
+        <Route path="/auth/forgot-password" element={
+          <AuthenticatedRoute>
+            <ForgotPassword />
+          </AuthenticatedRoute>
+        } />
+        <Route path="/reset-password/:token" element={
+          <AuthenticatedRoute>
+            <ResetPassword />
+          </AuthenticatedRoute>
+        } />
+
         <Route path="/landing" element={
           <AuthenticatedRoute>
-            <LandingPage/>
+            <LandingPage />
           </AuthenticatedRoute>
-        }></Route>
+        } />
         <Route
           path="/"
           element={
@@ -78,10 +90,10 @@ function App() {
             </NotAuthenticatedRoute>
           }
         />
-        
+
         {/* <Route path="/*" element={<Navigate to="/landing" replace />} /> */}
       </Routes>
-      
+
     </BrowserRouter>
   )
 }
