@@ -49,6 +49,41 @@ export default function Home() {
     { pt: "Sábado", en: "SATURDAY" },
   ];
 
+  const [translatedInstructions, setTranslatedInstructions] = useState(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const translateText = async (text, targetLanguage = 'pt') => {
+    if (!text) return text;
+
+    try {
+      const response = await axios.post(
+        'https://api.mistral.ai/v1/chat/completions',
+        {
+          model: "mistral-tiny",
+          messages: [
+            {
+              role: "user",
+              content: `Translate the following cooking instructions to ${targetLanguage} keeping the original formatting. Just return the translation without any additional text: ${text}`
+            }
+          ],
+          temperature: 0.3
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer agmowKcNExMkR99FwyPhnzCMqCHi0V5a` // Substitua pela sua chave
+          },
+          timeout: 10000
+        }
+      );
+
+      console.log(response.data.choices[0].message.content.trim());
+      return response.data.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Translation error:', error);
+      return text; // Retorna o texto original em caso de erro
+    }
+  };
   useEffect(() => {
     const fetchTdee = async () => {
       try {
@@ -127,6 +162,27 @@ export default function Home() {
 
     fetchWeeklyData();
   }, [navigate]);
+
+  useEffect(() => {
+    if (openModal && selectedMeal?.prepareInstructions) {
+      const translateInstructions = async () => {
+        setIsTranslating(true);
+        try {
+          const translated = await translateText(selectedMeal.prepareInstructions);
+          setTranslatedInstructions(translated);
+        } catch (error) {
+          console.error('Translation failed:', error);
+          setTranslatedInstructions(selectedMeal.prepareInstructions);
+        } finally {
+          setIsTranslating(false);
+        }
+      };
+
+      translateInstructions();
+    } else {
+      setTranslatedInstructions(null); // Reseta quando o modal fecha
+    }
+  }, [openModal, selectedMeal]);
 
   // Função para remover refeições consumidas
   const handleRemoveMeal = async (mealId) => {
@@ -527,7 +583,7 @@ export default function Home() {
                 {isOverLimit && (
                   <span className="text-xs text-red-500 mt-1 flex items-center">
                     <WarningIcon fontSize="small" className="mr-1" />
-                    
+
                   </span>
                 )}
               </div>
@@ -771,11 +827,23 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {selectedMeal.prepareInstructions && (
+                      {/* {selectedMeal.prepareInstructions && (
                         <div>
                           <h5 className="mb-2">Modo de Preparo</h5>
                           <p className="whitespace-pre-line">
                             {selectedMeal.prepareInstructions}
+                          </p>
+                        </div>
+                      )} */}
+                      {selectedMeal.prepareInstructions && (
+                        <div>
+                          <h5 className="mb-2">
+                            Modo de Preparo
+                            {isTranslating && <span className="text-sm text-gray-500 ml-2">(traduzindo...)</span>}
+                          </h5>
+                          <p className="whitespace-pre-line">
+                            {isTranslating ? "Carregando tradução..." :
+                              (translatedInstructions || selectedMeal.prepareInstructions)}
                           </p>
                         </div>
                       )}
